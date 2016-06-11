@@ -15,7 +15,7 @@ The following features are planned:
 Besides supporting the classic method of a raw file structure directly stored in title ID directories under the root directory (like the original Cafiine server does), this server additionally supports so called game data packs. These are a containers of a custom file format (*.csgp), imaginable like a ZIP file, storing files and folders inside of them. Other than being a file, they are handled like the classic title ID folders, put into the Cafiine root / data folder.
 
 They have the following advantages:
-- They encrypt files and file names, thus making it harder for curious sneaky eyes to look into the mods. This does *not* mean that the mods are undecryptable; in fact, encryption is very simple and easily reversable. It should be seen as a "script kiddie" filter.
+- They encrypt files and file names, thus making it harder for curious sneaky eyes to look into the mods. This does *not* mean that the mods are undecryptable; in fact, the encryption is very simple and easily reversable. It should be seen as a "script kiddie" filter.
 - The whole container stores a hash checked at load time to prevent nooby tampers.
 - They can be time-bombed to not work outside of a set time period. When a player tries to use a game pack outside its intended time period, no data will be sent back to Cafiine. This mostly crashes the Wii U, so make sure to tell players at which time the package can be used. Again, this is *not* safe, hence the source is public and the code handling the time can simply be removed.
 - They can be shared and managed as just one file without the need to pack / unpack them. 
@@ -46,7 +46,7 @@ If there are collisions between packs or with the raw file system having the sam
 ## Dumping Files
 This server does not store dumped files beside their "-request" file like the original server does, it stores them in the specified dump folder (being "dump" by default), recreating the folder structure there.
 
-If the server is started with the `/DUMPALL` parameter, every queried file will be dumped, basically recreating the game contents in the `dump\titleID` folder. Files on the Wii U are not replaced in this mode.
+If the server is started with the `/DUMPALL` parameter, every queried file will be dumped, basically recreating the game contents in the `dump\titleID` folder. If any `-request_slow` files are found in the data directory, they will still checked to initiate a slow file dump (useful for streamed files to workaround problems with Cafiine throwing up dumping them to quickly). Files on the Wii U are not replaced at all in this mode.
 
 ## Optimized Console Output / Logging
 I like fancy text and made the console output a bit more colorful and changed a lot of the messages. When using game packs, replaced files are of course not shown to keep the modded file names secret (it still shows which files are queried).
