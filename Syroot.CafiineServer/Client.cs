@@ -165,10 +165,16 @@ namespace Syroot.CafiineServer
             if (_server.DumpAll)
             {
                 // Only dump if it has not been dumped yet.
-                if (!File.Exists(dumpPath))
+                if (File.Exists(dumpPath))
                 {
-                    Log(ConsoleColor.Magenta, "> Requesting dump of '{0}'", path);
-                    _writer.Write((byte)ClientCommand.Request);
+                    _writer.Write((byte)ClientCommand.Normal);
+                }
+                else
+                {
+                    // Respect a manual override to dump slowly.
+                    bool requestSlow = File.Exists(fullPath + "-request_slow");
+                    Log(ConsoleColor.Magenta, "> Requesting dump of '{0}' (slow={1})", path, requestSlow);
+                    _writer.Write(requestSlow ? (byte)ClientCommand.RequestSlow : (byte)ClientCommand.Request);
                 }
             }
             else
@@ -209,8 +215,7 @@ namespace Syroot.CafiineServer
                     _writer.Write(0x0FFF00FF | (handle << 8));
                 }
                 else if (!File.Exists(dumpPath)
-                    && (_server.Storage.GetFile(_titleID + path + "-request") != null
-                        || (requestSlow = _server.Storage.GetFile(_titleID + path + "-request_slow") != null)))
+                    && (File.Exists(fullPath + "-request") || (requestSlow == File.Exists(fullPath + "-request_slow"))))
                 {
                     // We do not have a replacement file, but a single dump is requested for it. Reply to receive it.
                     Log(ConsoleColor.Magenta, "> Requesting single dump of '{0}' (slow={1})", path, requestSlow);
@@ -491,10 +496,10 @@ namespace Syroot.CafiineServer
             Log(ConsoleColor.Gray, "Pinged (value1={0}, value2={1})");
         }
 
-        private string GetServerPath(string queriedPath)
+        private string GetServerPath(string path)
         {
-            queriedPath = queriedPath.TrimStart('/').Replace('/', Path.DirectorySeparatorChar);
-            return Path.Combine(_server.DataDirectory, _titleID, queriedPath);
+            path = path.TrimStart('/').Replace('/', Path.DirectorySeparatorChar);
+            return Path.Combine(_server.DataDirectory, _titleID, path);
         }
 
         private void Log(ConsoleColor color, string format, params object[] args)
