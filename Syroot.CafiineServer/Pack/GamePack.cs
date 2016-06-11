@@ -18,6 +18,10 @@ namespace Syroot.CafiineServer.Pack
         /// </summary>
         internal const string FileExtension = ".csgp";
 
+        // ---- MEMBERS ------------------------------------------------------------------------------------------------
+
+        private SymmetricAlgorithm _cryptoAlgorithm;
+
         // ---- CONSTRUCTORS & DESTRUCTOR ------------------------------------------------------------------------------
 
         /// <summary>
@@ -26,7 +30,9 @@ namespace Syroot.CafiineServer.Pack
         /// <param name="fileName">The name of the file containing pack data.</param>
         internal GamePack(string fileName)
         {
-            using (FileStream stream = new FileStream(fileName, FileMode.Open, FileAccess.Read, FileShare.Read))
+            FileName = fileName;
+
+            using (FileStream stream = new FileStream(FileName, FileMode.Open, FileAccess.Read, FileShare.Read))
             using (BinaryDataReader reader = new BinaryDataReader(stream))
             {
                 // Read the file header.
@@ -57,16 +63,25 @@ namespace Syroot.CafiineServer.Pack
                 }
 
                 // Read in the keys and generate the crypto provider.
-                AesCryptoServiceProvider cryptoProvider = new AesCryptoServiceProvider();
-                cryptoProvider.Key = reader.ReadBytes(reader.ReadByte());
-                cryptoProvider.IV = reader.ReadBytes(reader.ReadByte());
+                _cryptoAlgorithm = new AesCryptoServiceProvider();
+                _cryptoAlgorithm.Key = reader.ReadBytes(reader.ReadByte());
+                _cryptoAlgorithm.IV = reader.ReadBytes(reader.ReadByte());
 
                 // Read in the directory and file headers.
-                RootDirectory = new GamePackDirectory(cryptoProvider, reader);
+                RootDirectory = new GamePackDirectory(_cryptoAlgorithm, reader);
             }
         }
 
         // ---- PROPERTIES ---------------------------------------------------------------------------------------------
+
+        /// <summary>
+        /// Gets the name of the file in which this game pack is stored.
+        /// </summary>
+        internal string FileName
+        {
+            get;
+            private set;
+        }
 
         /// <summary>
         /// Gets the time and date from which this pack can be used.
@@ -87,12 +102,44 @@ namespace Syroot.CafiineServer.Pack
         }
 
         /// <summary>
+        /// Gets the <see cref="SymmetricAlgorithm"/> to use for decrypting files.
+        /// </summary>
+        internal SymmetricAlgorithm CryptoAlgorithm
+        {
+            get;
+            private set;
+        }
+
+        /// <summary>
         /// Gets the main directory of the pack, which should be named after the title ID of the affected game.
         /// </summary>
         internal GamePackDirectory RootDirectory
         {
             get;
             private set;
+        }
+
+        // ---- METHODS (INTERNAL) -------------------------------------------------------------------------------------
+        
+        /// <summary>
+        /// Returns the decrypted file data of the given <see cref="GamePackFile"/>.
+        /// </summary>
+        /// <param name="file">The <see cref="GamePackFile"/> which data will be decrypted.</param>
+        /// <returns>The decrypted file data.</returns>
+        internal byte[] GetDecryptedFileData(GamePackFile file)
+        {
+            byte[] decryptedData = new byte[file.Length];
+            using (FileStream fileStream = new FileStream(FileName, FileMode.Open, FileAccess.Read, FileShare.Read))
+            {
+                // Seek to the start of the decrypted file data and decrypt it into the buffer.
+                fileStream.Position = file.Offset;
+                using (CryptoStream cryptoStream = new CryptoStream(fileStream, _cryptoAlgorithm.CreateDecryptor(),
+                    CryptoStreamMode.Read))
+                {
+                    cryptoStream.Read(decryptedData, 0, decryptedData.Length);
+                }
+            }
+            return decryptedData;
         }
     }
 }

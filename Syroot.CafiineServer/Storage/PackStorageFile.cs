@@ -1,4 +1,5 @@
 ﻿using System.IO;
+using System.Security.Cryptography;
 using Syroot.CafiineServer.Pack;
 
 namespace Syroot.CafiineServer.Storage
@@ -50,7 +51,10 @@ namespace Syroot.CafiineServer.Storage
         /// </summary>
         internal override Stream GetStream()
         {
-            return null;
+            // Return the decrypted contents.
+            // TODO: This should get buffered in a thread-safe way, as files can be opened multiple times, and we return
+            // multiple needless copies of it right now.
+            return new MemoryStream(GamePack.GetDecryptedFileData(GamePackFile));
         }
     }
 }
