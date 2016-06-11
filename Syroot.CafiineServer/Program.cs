@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Net;
+using Syroot.CafiineServer.Common;
 
 namespace Syroot.CafiineServer
 {
@@ -25,7 +25,7 @@ namespace Syroot.CafiineServer
         {
             try
             {
-                Dictionary<string, string> arguments = GetParameterDictionary(args);
+                Dictionary<string, string> arguments = ParameterParser.ParseToDictionary(args);
                 ParseParameters(arguments);
 
                 // Check for requested help.
@@ -35,7 +35,7 @@ namespace Syroot.CafiineServer
                     return -1;
                 }
                 // Create a server and make it listen for incoming connections.
-                Server server = new Server(_ipAddress, _port, _dataPath, _dumpPath, _logsPath);
+                Server server = new Server(_ipAddress, _port, _dataPath, _dumpPath, _logsPath, _dumpAll);
                 server.Run();
             }
             catch (Exception ex)
@@ -50,8 +50,8 @@ namespace Syroot.CafiineServer
         {
             Console.WriteLine("Communicates with Wii U Cafiine clients and allows file dump and replacement.");
             Console.WriteLine();
-            Console.WriteLine("CAFIINESERVER [PORT=7332] [IP=192.168.1.10] [DATA=DataPath] [DUMP=DumpPath]");
-            Console.WriteLine("              [LOGS=LogsPath] [DUMPALL]");
+            Console.WriteLine("CAFIINESERVER [/PORT=7332] [/IP=192.168.1.10] [/DATA=DataPath] [/DUMP=DumpPath]");
+            Console.WriteLine("              [/LOGS=LogsPath] [/DUMPALL]");
             Console.WriteLine();
             Console.WriteLine("        PORT     The port under which the server will listen for incoming client");
             Console.WriteLine("                 connections. Defaults to 7332.");
@@ -64,26 +64,7 @@ namespace Syroot.CafiineServer
             Console.WriteLine("        LOGS     The path to the directory in which logs will be stored. Defaults");
             Console.WriteLine("                 to 'logs'.");
             Console.WriteLine("        DUMPALL  When specified, the server dumps any file queried by the client.");
-        }
-
-        private static Dictionary<string, string> GetParameterDictionary(string[] args)
-        {
-            // Arguments are split at a equals character. E.g. param1=value1 param2=value2 param3=value3
-            Dictionary<string, string> arguments = new Dictionary<string, string>();
-            foreach (string arg in args)
-            {
-                string argument = arg.Trim();
-                int equalIndex = argument.IndexOf('=');
-                if (equalIndex > 0)
-                {
-                    arguments.Add(argument.Substring(0, equalIndex).ToUpper(), argument.Substring(equalIndex + 1));
-                }
-                else
-                {
-                    arguments.Add(argument.ToUpper(), null);
-                }
-            }
-            return arguments;
+            Console.WriteLine("                 Files will not be replaced even if available.");
         }
 
         private static void ParseParameters(Dictionary<string, string> arguments)

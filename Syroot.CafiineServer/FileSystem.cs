@@ -3,6 +3,9 @@ using System.Runtime.InteropServices;
 
 namespace Syroot.CafiineServer
 {
+    /// <summary>
+    /// Wii U structure holding information about a file system entry.
+    /// </summary>
     [StructLayout(LayoutKind.Sequential)]
     internal struct FSStat
     {
@@ -33,6 +36,9 @@ namespace Syroot.CafiineServer
         internal uint Unk60Zero;
     }
 
+    /// <summary>
+    /// Wii U flags describing which information a file system entry structure contains.
+    /// </summary>
     [Flags]
     internal enum FSStatFlag : uint
     {

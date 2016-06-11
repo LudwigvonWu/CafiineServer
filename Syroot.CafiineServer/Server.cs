@@ -23,20 +23,22 @@ namespace Syroot.CafiineServer
         /// <param name="ipAddress">The IP address to run the server on.</param>
         /// <param name="port">The port on which to listen for incoming connections.</param>
         /// <param name="dataDirectory">The directory containing the game data.</param>
-        /// <param name="logDirectory">The log directory into which log files will be written.</param>
-        internal Server(IPAddress ipAddress, int port, string dataDirectory, string dumpDirectory, string logDirectory)
+        /// <param name="logsDirectory">The log directory into which log files will be written.</param>
+        internal Server(IPAddress ipAddress, int port, string dataDirectory, string dumpDirectory, string logsDirectory,
+            bool dumpAll)
         {
             IPAddress = ipAddress;
             Port = port;
             DataDirectory = dataDirectory;
             DumpDirectory = dumpDirectory;
-            LogDirectory = logDirectory;
+            LogsDirectory = logsDirectory;
+            DumpAll = dumpAll;
 
             // Ensure the directories exist.
             Directory.CreateDirectory(DataDirectory);
             Directory.CreateDirectory(DumpDirectory);
-            Directory.CreateDirectory(LogDirectory);
-
+            Directory.CreateDirectory(LogsDirectory);
+            
             // Initialize the storage system.
             Storage = new StorageSystem(DataDirectory);
         }
@@ -82,7 +84,16 @@ namespace Syroot.CafiineServer
         /// <summary>
         /// Gets the directory in which log files will be written.
         /// </summary>
-        internal string LogDirectory
+        internal string LogsDirectory
+        {
+            get;
+            private set;
+        }
+
+        /// <summary>
+        /// Gets or sets a value indicating whether the server dumps all queried files rather than replacing files.
+        /// </summary>
+        internal bool DumpAll
         {
             get;
             private set;
@@ -108,11 +119,11 @@ namespace Syroot.CafiineServer
             // Create the listener which waits for incoming connections.
             TcpListener listener = new TcpListener(IPAddress, Port);
             listener.Start();
-            Log(ConsoleColor.Yellow, "Cafiine server started.");
-            Log(ConsoleColor.Yellow, "Local Server IPs: {0} (on port {1})", String.Join(", ", GetLocalIPs()), Port);
-            Log(ConsoleColor.Yellow, "Data directory  : {0}", Path.GetFullPath(DataDirectory));
-            Log(ConsoleColor.Yellow, "Dump directory  : {0}", Path.GetFullPath(DumpDirectory));
-            Log(ConsoleColor.Yellow, "Log directory   : {0}", Path.GetFullPath(LogDirectory));
+            Log(ConsoleColor.Yellow, "Cafiine server started{0}.", DumpAll ? " in dump mode" : null);
+            Log(ConsoleColor.Yellow, "Server IP     : {0} (on port {1})", String.Join(", ", GetLocalIPs()), Port);
+            Log(ConsoleColor.Yellow, "Data directory: {0}", Path.GetFullPath(DataDirectory));
+            Log(ConsoleColor.Yellow, "Dump directory: {0}", Path.GetFullPath(DumpDirectory));
+            Log(ConsoleColor.Yellow, "Logs directory: {0}", Path.GetFullPath(LogsDirectory));
             Log(ConsoleColor.DarkYellow, "Listening for new connections...");
 
             // Repeatedly wait for new incoming connections.
@@ -121,6 +132,33 @@ namespace Syroot.CafiineServer
                 Client client = new Client(this, listener.AcceptTcpClient());
                 client.HandleAsync();
             }
+        }
+
+        /// <summary>
+        /// Returns the path a dumped file with the given path would have.
+        /// </summary>
+        /// <param name="path">The path to transform into a dump path.</param>
+        /// <returns>The path under which a dump file would be located.</returns>
+        internal string GetDumpPath(string titleID, string path)
+        {
+            return Path.Combine(DumpDirectory, titleID, path.TrimStart('/').Replace('/', Path.DirectorySeparatorChar));
+        }
+
+        /// <summary>
+        /// Creates a <see cref="FileStream"/> for a dumped file for the file with the given path and title ID.
+        /// </summary>
+        /// <param name="titleID">The title ID of the game which file will be dumped.</param>
+        /// <param name="path">The original path of the file.</param>
+        /// <returns>The <see cref="FileStream"/> opened for dumping the file in.</returns>
+        internal FileStream GetDumpStream(string titleID, string path)
+        {
+            string dumpPath = GetDumpPath(titleID, path);
+
+            // Ensure that the directory under the dump path exists.
+            Directory.CreateDirectory(Path.GetDirectoryName(dumpPath));
+
+            // Return the file stream in the directory.
+            return new FileStream(dumpPath, FileMode.Create, FileAccess.Write, FileShare.Read);
         }
 
         // ---- METHODS (PRIVATE) --------------------------------------------------------------------------------------
@@ -143,5 +181,6 @@ namespace Syroot.CafiineServer
             Console.ForegroundColor = color;
             Console.WriteLine("[SERVER] " + format, args);
         }
+
     }
 }

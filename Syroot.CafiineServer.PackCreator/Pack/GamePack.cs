@@ -26,9 +26,11 @@ namespace Syroot.CafiineServer.PackCreator.Pack
         /// <param name="fileName">The name of the file to save the game pack under.</param>
         /// <param name="key">The key to encrypt the data with.</param>
         /// <param name="directory">The root directory which contents will be included.</param>
+        /// <param name="rootName">The name under which the root directory will be stored.</param>
         /// <param name="validFrom">The date and time at which the package starts to be usable.</param>
         /// <param name="validTo">The date and time at which the package cannot be used anymore.</param>
-        internal static void CreateFile(string fileName, string directory, DateTime validFrom, DateTime validTo)
+        internal static void CreateFile(string fileName, string directory, string rootName, DateTime validFrom,
+            DateTime validTo)
         {
             fileName = Path.ChangeExtension(fileName, FileExtension);
 
@@ -37,7 +39,7 @@ namespace Syroot.CafiineServer.PackCreator.Pack
             ICryptoTransform cryptoTransform = cryptoProvider.CreateEncryptor();
 
             // Create the root directory structure.
-            GamePackDirectory root = new GamePackDirectory(cryptoTransform, new DirectoryInfo(directory));
+            GamePackDirectory root = new GamePackDirectory(cryptoTransform, new DirectoryInfo(directory), rootName);
 
             // Use the size of the headers to write the structures to the file with the correct file data offsets.
             using (FileStream stream = new FileStream(fileName, FileMode.Create, FileAccess.ReadWrite, FileShare.None))
@@ -68,7 +70,7 @@ namespace Syroot.CafiineServer.PackCreator.Pack
                     stream.Position = 28; // Right behind the MD5 hash field.
                     md5Hash = md5.ComputeHash(stream);
                 }
-                writer.Position = 12;
+                writer.Position = 12; // Start of the MD5 hash field.
                 writer.Write(md5Hash);
             }
         }

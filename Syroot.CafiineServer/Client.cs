@@ -18,7 +18,8 @@ namespace Syroot.CafiineServer
     {
         // ---- MEMBERS ------------------------------------------------------------------------------------------------
 
-        private static int _clientCounter;
+        private static int    _clientCounter;
+        private static object _logMutex = new object();
 
         private Server    _server;
         private TcpClient _tcpClient;
@@ -79,18 +80,29 @@ namespace Syroot.CafiineServer
                     // Get the requested title ID.
                     _titleIDParts = _reader.ReadUInt32s(4);
                     _titleID = String.Format("{0:X8}-{1:X8}", _titleIDParts[0], _titleIDParts[1]);
-                    Log(ConsoleColor.White, "Client connected (endpoint={0})", _tcpClient.Client.RemoteEndPoint);
+                    Log(ConsoleColor.White, "Client connected (endpoint={0}, title={1})",
+                        _tcpClient.Client.RemoteEndPoint, _titleID);
 
-                    // Check if any game data is available for this title.
-                    if (_server.Storage.GetDirectory(_titleID) == null)
+                    // Tell the client whether we want to handle the title or not.
+                    if (_server.DumpAll)
                     {
-                        Log(ConsoleColor.Gray, "> No data available for title {0}.", _titleID);
-                        _writer.Write((byte)ClientCommand.Normal);
-                        return;
+                        // Send back that we are interested in this title.  
+                        Log(ConsoleColor.White, "> Enabling dump for title {0}.", _titleID);
+                        _writer.Write((byte)ClientCommand.Special);
                     }
-                    // Send back that we have data for this title.  
-                    Log(ConsoleColor.White, "> Data found for title {0}.", _titleID);
-                    _writer.Write((byte)ClientCommand.Special);
+                    else
+                    {
+                        // Check if any game data is available for this title.
+                        if (_server.Storage.GetDirectory(_titleID) == null)
+                        {
+                            Log(ConsoleColor.Gray, "> No data available for title {0}.", _titleID);
+                            _writer.Write((byte)ClientCommand.Normal);
+                            return;
+                        }
+                        // Send back that we are interested in this title.  
+                        Log(ConsoleColor.White, "> Data found for title {0}.", _titleID);
+                        _writer.Write((byte)ClientCommand.Special);
+                    }
 
                     // Repeatedly wait for commands sent by the client to handle them.
                     while (true)
@@ -148,51 +160,67 @@ namespace Syroot.CafiineServer
             // Get the server path to the requested file.
             string fullPath = GetServerPath(path);
             Log(ConsoleColor.Cyan, "Querying '{0}' (mode={1})", fullPath, mode.ToUpper());
-            bool requestSlow = false;
-            StorageFile file = _server.Storage.GetFile(_titleID + path);
-            if (file != null)
+            // If the server is in DUMPALL mode, do not send a file back, just dump those files not dumped yet.
+            string dumpPath = _server.GetDumpPath(_titleID, path);
+            if (_server.DumpAll)
             {
-                // We have a replacement file, find and send back a new virtual file handle.
-                int handle = -1;
-                for (int i = 0; i < _fileStreams.Length; i++)
+                // Only dump if it has not been dumped yet.
+                if (!File.Exists(dumpPath))
                 {
-                    if (_fileStreams[i] == null)
-                    {
-                        handle = i;
-                        break;
-                    }
+                    Log(ConsoleColor.Magenta, "> Requesting dump of '{0}'", path);
+                    _writer.Write((byte)ClientCommand.Request);
                 }
-                // If no free handle could be found, we cannot handle this request.
-                if (handle == -1)
-                {
-                    Log(ConsoleColor.Red, "> Cannot handle query, no more free file handles.");
-                    _writer.Write((byte)ClientCommand.Special);
-                    _writer.Write(-19);
-                    _writer.Write(0);
-                    return;
-                }
-                // Open a new file stream on the replacement file under this handle.
-                if (file.GetType() == typeof(RawStorageFile))
-                {
-                    Log(ConsoleColor.Green, "> Replacing '{0}' (mode={1}, handle={2})", path, mode.ToUpper(), handle);
-                }
-                _fileStreams[handle] = file.GetStream();
-                // Send back that we have a replacement file with the found handle.
-                _writer.Write((byte)ClientCommand.Special);
-                _writer.Write(0);
-                _writer.Write(0x0FFF00FF | (handle << 8));
-            }
-            else if (!File.Exists(fullPath + "-dump")
-                && (File.Exists(fullPath + "-request") || (requestSlow = File.Exists(fullPath + "-request_slow"))))
-            {
-                // We do not have a replacement file, but a first dump is requested for it. Tell Cafiine to send it.
-                Log(ConsoleColor.Magenta, "> Requesting dump of '{0}' (slow={1})", path, requestSlow);
-                _writer.Write(requestSlow ? (byte)ClientCommand.RequestSlow : (byte)ClientCommand.Request);
             }
             else
             {
-                // No file was found and no dump was requested (or was already done).
-                _writer.Write((byte)ClientCommand.Normal);
+                bool requestSlow = false;
+                StorageFile file = _server.Storage.GetFile(_titleID + path);
+                if (file != null)
+                {
+                    // We have a replacement file, find and send back a new virtual file handle.
+                    int handle = -1;
+                    for (int i = 0; i < _fileStreams.Length; i++)
+                    {
+                        if (_fileStreams[i] == null)
+                        {
+                            handle = i;
+                            break;
+                        }
+                    }
+                    // If no free handle could be found, we cannot handle this request.
+                    if (handle == -1)
+                    {
+                        Log(ConsoleColor.Red, "> Cannot handle query, no more free file handles.");
+                        _writer.Write((byte)ClientCommand.Special);
+                        _writer.Write(-19);
+                        _writer.Write(0);
+                        return;
+                    }
+                    // Open a new file stream on the replacement file under this handle.
+                    if (file.GetType() == typeof(RawStorageFile))
+                    {
+                        Log(ConsoleColor.Green, "> Replacing '{0}' (mode={1}, handle={2})", path, mode.ToUpper(),
+                            handle);
+                    }
+                    _fileStreams[handle] = file.GetStream();
+                    // Send back that we have a replacement file with the found handle.
+                    _writer.Write((byte)ClientCommand.Special);
+                    _writer.Write(0);
+                    _writer.Write(0x0FFF00FF | (handle << 8));
+                }
+                else if (!File.Exists(dumpPath)
+                    && (_server.Storage.GetFile(_titleID + path + "-request") != null
+                        || (requestSlow = _server.Storage.GetFile(_titleID + path + "-request_slow") != null)))
+                {
+                    // We do not have a replacement file, but a single dump is requested for it. Reply to receive it.
+                    Log(ConsoleColor.Magenta, "> Requesting single dump of '{0}' (slow={1})", path, requestSlow);
+                    _writer.Write(requestSlow ? (byte)ClientCommand.RequestSlow : (byte)ClientCommand.Request);
+                }
+                else
+                {
+                    // No file was found and no dump was requested (or was already done).
+                    _writer.Write((byte)ClientCommand.Normal);
+                }
             }
         }
 
@@ -202,10 +230,9 @@ namespace Syroot.CafiineServer
             int fileDescriptor = _reader.ReadInt32();
             int pathLength = _reader.ReadInt32();
             string path = _reader.ReadString(BinaryStringFormat.ZeroTerminated, Encoding.ASCII);
-            
-            // Create a new file to save the incoming dumped data in.
-            _dumpStreams.Add(fileDescriptor, new FileStream(GetServerPath(path) + "-dump", FileMode.Create,
-                FileAccess.Write, FileShare.Read));
+
+            // Create a new file stream to save the incoming dumped data in.
+            _dumpStreams.Add(fileDescriptor, _server.GetDumpStream(_titleID, path));
 
             // Tell Cafiine that the file was created and we are now waiting to retrieve the file data.
             _writer.Write((byte)ClientCommand.Special);
@@ -472,8 +499,11 @@ namespace Syroot.CafiineServer
 
         private void Log(ConsoleColor color, string format, params object[] args)
         {
-            Console.ForegroundColor = color;
-            Console.WriteLine("[" + _clientID.ToString() + "] " + format, args);
+            lock (_logMutex)
+            {
+                Console.ForegroundColor = color;
+                Console.WriteLine("[" + _clientID.ToString() + "] " + format, args);
+            }
         }
 
         // ---- ENUMERATIONS -------------------------------------------------------------------------------------------
