@@ -21,18 +21,21 @@ They have the following advantages:
 - They can be shared and managed as just one file without the need to pack / unpack them. 
 
 ## PackCreator Tool
-Game packs are created with the PackCreator tool. It accepts a parameter specifying the name of the file in which the pack will be stored (which must end on *.csgp to be recognized by the server). Another parameter specifies the directory which contents the pack will store. This is a typical title ID directory as used in the original Cafiine server. Additionally, time-bomb dates can be set. A custom encryption key is automatically created.
+Game packs are created with the PackCreator tool. It accepts a parameter specifying the name of the file in which the pack will be stored (which will be forced to have the .csgp extension to be recognized by the server later on). Another parameter specifies the directory which contents the pack will store. This is a typical title ID directory as used in the original Cafiine server. Additionally, time-bomb dates can be set. A custom encryption key is automatically created.
 
 Some examples of calling the PackCreator tool:
-- `PackCreator TARGET=D:\Cafiine\data\mk8.csgp SOURCE=D:\Mods\00050000-1010ED00`
+- `PackCreator /TARGET=D:\Cafiine\data\mk8.csgp /SOURCE=D:\Mods\00050000-1010ED00`
 
-  This stores all the contents of 00050000-1010ED00 in the mk8.csgp file (including the folder itself to know the title ID).
-- `PackCreator TARGET=mycoolmod.csgp SOURCE=D:\cafiine_old\cafiine_root\00050000-1010EC00 MINDATE=12:00-11.06.2016`
+  This stores all the contents of `00050000-1010ED00` in an `mk8.csgp` file (including the folder itself to know the title ID).
+- `PackCreator /TARGET=D:\Cafiine\data\toadondrugs.csgp /SOURCE=D:\Mods\toady ROOTNAME=00050000-1010ED00`
 
-  This package cannot be used before 11.06.2016, 12:00 UTC.
-- `PackCreator TARGET=blub.csgp SOURCE=D:\mk8mods\yoshishit\00050000-1010ED00 MAXDATE=23:59-31.12.2016`
+  This stores all the contents of the `toady` folder in a `toadondrugs.csgp` file, with the root folder's name becoming `00050000-1010ED00` (useful if you want to change a title ID on the fly).
+- `PackCreator /TARGET=mycoolmod SOURCE=D:\cafiine_old\cafiine_root\00050000-1010EC00 /MINDATE=12:00-11.06.2016`
 
-  This package makes itself invalid when being used after New Year's Eve 2016.
+  The created pack `mycoolmod.csgp` cannot be used before 11.06.2016, 12:00 UTC.
+- `PackCreator -TARGET=blub SOURCE=D:\mk8mods\yoshishit\00050000-1010ED00 /MAXDATE=23:59-31.12.2016`
+
+  The created pack `blub.csgp` makes itself invalid when being used after New Year's Eve 2016. Note how you can use parameters with `-` or no prefix.
 
 The packs are then put into the root / data directory of the Cafiine server, besides any possible classic raw title ID directories.
 
@@ -40,10 +43,10 @@ If there are collisions between packs or with the raw file system having the sam
 - The raw file system always has priority over packs (so you can still play around there before creating a pack).
 - The packs are prioritized in alphabetical order (e.g. "aaatakethismod.csgp" has higher priority than "crapmod.csgp").
  
-## Dumping Files (not yet implemented)
+## Dumping Files
 This server does not store dumped files beside their "-request" file like the original server does, it stores them in the specified dump folder (being "dump" by default), recreating the folder structure there.
 
-If the server is started with the DUMPALL parameter, every queried file will be dumped, basically recreating the game contents in the dump\titleID folder.
+If the server is started with the `/DUMPALL` parameter, every queried file will be dumped, basically recreating the game contents in the `dump\titleID` folder. Files on the Wii U are not replaced in this mode.
 
 ## Optimized Console Output / Logging
 I like fancy text and made the console output a bit more colorful and changed a lot of the messages. When using game packs, replaced files are of course not shown to keep the modded file names secret (it still shows which files are queried).
