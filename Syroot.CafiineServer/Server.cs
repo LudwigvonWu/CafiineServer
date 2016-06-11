@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Net;
 using System.Net.Sockets;
+using Syroot.CafiineServer.Storage;
 
 namespace Syroot.CafiineServer
 {
@@ -23,16 +24,21 @@ namespace Syroot.CafiineServer
         /// <param name="port">The port on which to listen for incoming connections.</param>
         /// <param name="rootDirectory">The root directory containing the game data.</param>
         /// <param name="logDirectory">The log directory into which log files will be written.</param>
-        internal Server(IPAddress ipAddress, int port, string rootDirectory, string logDirectory)
+        internal Server(IPAddress ipAddress, int port, string rootDirectory, string dumpDirectory, string logDirectory)
         {
             IPAddress = ipAddress;
             Port = port;
             RootDirectory = rootDirectory;
+            DumpDirectory = dumpDirectory;
             LogDirectory = logDirectory;
 
             // Ensure the directories exist.
             Directory.CreateDirectory(RootDirectory);
+            Directory.CreateDirectory(DumpDirectory);
             Directory.CreateDirectory(LogDirectory);
+
+            // Initialize the storage system.
+            Storage = new StorageSystem(RootDirectory);
         }
 
         // ---- PROPERTIES ---------------------------------------------------------------------------------------------
@@ -65,9 +71,27 @@ namespace Syroot.CafiineServer
         }
 
         /// <summary>
+        /// Gets the directory in which dumped game data will be stored.
+        /// </summary>
+        internal string DumpDirectory
+        {
+            get;
+            private set;
+        }
+
+        /// <summary>
         /// Gets the directory in which log files will be written.
         /// </summary>
         internal string LogDirectory
+        {
+            get;
+            private set;
+        }
+
+        /// <summary>
+        /// Gets the <see cref="StorageSystem"/> over which all file reads have to go.
+        /// </summary>
+        internal StorageSystem Storage
         {
             get;
             private set;
@@ -112,13 +136,7 @@ namespace Syroot.CafiineServer
                 }
             }
         }
-
-        /// <summary>
-        /// Appends the message with the given format and arguments to the server log file.
-        /// </summary>
-        /// <param name="color">The color to use for the output in the console.</param>
-        /// <param name="format">The format of the message.</param>
-        /// <param name="args">The arguments to format the message with.</param>
+        
         private void Log(ConsoleColor color, string format, params object[] args)
         {
             Console.ForegroundColor = color;

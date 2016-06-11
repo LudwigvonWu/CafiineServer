@@ -34,10 +34,6 @@
     <Reference Include="System" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="GamePack.cs" />
-    <Compile Include="GamePackDirectory.cs" />
-    <Compile Include="GamePackFile.cs" />
-    <Compile Include="ICryptoTransformExtensions.cs" />
     <Compile Include="IO\BinaryDataFormats.cs" />
     <Compile Include="IO\BinaryDataReader.cs" />
     <Compile Include="IO\BinaryDataWriter.cs" />

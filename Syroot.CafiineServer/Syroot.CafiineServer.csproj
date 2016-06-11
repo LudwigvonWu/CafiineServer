@@ -46,11 +46,21 @@
   <ItemGroup>
     <Compile Include="Client.cs" />
     <Compile Include="FileSystem.cs" />
+    <Compile Include="Pack\ICryptoTransformExtensions.cs" />
     <Compile Include="IO\BinaryDataWriterExtensions.cs" />
+    <Compile Include="Pack\GamePack.cs" />
+    <Compile Include="Pack\GamePackDirectory.cs" />
+    <Compile Include="Pack\GamePackFile.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Server.cs" />
-    <None Include="Storage.cs" />
+    <Compile Include="Storage\PackStorageDirectory.cs" />
+    <Compile Include="Storage\PackStorageFile.cs" />
+    <Compile Include="Storage\RawStorageDirectory.cs" />
+    <Compile Include="Storage\RawStorageFile.cs" />
+    <Compile Include="Storage\StorageSystem.cs" />
+    <Compile Include="Storage\StorageDirectory.cs" />
+    <Compile Include="Storage\StorageFile.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Properties\App.config" />

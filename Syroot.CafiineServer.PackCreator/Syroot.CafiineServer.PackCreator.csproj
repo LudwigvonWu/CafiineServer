@@ -8,7 +8,7 @@
     <OutputType>Exe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>Syroot.CafiineServer.PackCreator</RootNamespace>
-    <AssemblyName>Syroot.CafiineServer.PackCreator</AssemblyName>
+    <AssemblyName>PackCreator</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
@@ -37,6 +37,10 @@
     <Reference Include="System" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Pack\ICryptoTransformExtensions.cs" />
+    <Compile Include="Pack\GamePack.cs" />
+    <Compile Include="Pack\GamePackDirectory.cs" />
+    <Compile Include="Pack\GamePackFile.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
@@ -45,7 +49,7 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Syroot.CafiineServer.Common\Syroot.CafiineServer.Common.csproj">
-      <Project>{92902185-a5d9-4cbf-a722-c21d09d713a2}</Project>
+      <Project>{92902185-A5D9-4CBF-A722-C21D09D713A2}</Project>
       <Name>Syroot.CafiineServer.Common</Name>
     </ProjectReference>
   </ItemGroup>

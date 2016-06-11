@@ -1,91 +1,23 @@
 ﻿using System;
 using System.IO;
-using System.Linq;
 using System.Security.Cryptography;
 using Syroot.CafiineServer.Common.IO;
 
-namespace Syroot.CafiineServer.Common
+namespace Syroot.CafiineServer.PackCreator.Pack
 {
     /// <summary>
-    /// Represents an encrypted container file providing game data.
+    /// Represents an encrypted container file providing game data (creator view).
     /// </summary>
-    public class GamePack
+    internal class GamePack
     {
-        // ---- CONSTRUCTORS & DESTRUCTOR ------------------------------------------------------------------------------
+        // ---- CONSTANTS ----------------------------------------------------------------------------------------------
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="GamePack"/> class, loading the given pack file.
+        /// The extension which has to be used for game packs.
         /// </summary>
-        /// <param name="fileName">The name of the file containing pack data.</param>
-        public GamePack(string fileName)
-        {
-            using (FileStream stream = new FileStream(fileName, FileMode.Open, FileAccess.Read, FileShare.Read))
-            using (BinaryDataReader reader = new BinaryDataReader(stream))
-            {
-                // Read the file header.
-                if (reader.ReadString(4) != "CSGP")
-                {
-                    throw new InvalidDataException("Invalid game pack data.");
-                }
-                long flags = reader.ReadInt64(); // Unused yet.
+        internal const string FileExtension = ".csgp";
 
-                // Read and check the MD5 hash.
-                byte[] md5Hash = reader.ReadBytes(16);
-                using (reader.TemporarySeek(0))
-                using (MD5 md5 = MD5.Create())
-                {
-                    if (!md5.ComputeHash(stream).SequenceEqual(md5Hash))
-                    {
-                        throw new InvalidDataException("Invalid game pack data.");
-                    }
-                }
-
-                // Read in the time bomb dates and check if its still valid.
-                ValidFrom = reader.ReadDateTime(BinaryDateTimeFormat.NetTicks);
-                ValidTo = reader.ReadDateTime(BinaryDateTimeFormat.NetTicks);
-                DateTime now = DateTime.UtcNow;
-                if (now < ValidFrom || now > ValidTo)
-                {
-                    throw new InvalidDataException("Invalid game pack data.");
-                }
-
-                // Read in the keys and generate the crypto provider.
-                AesCryptoServiceProvider cryptoProvider = new AesCryptoServiceProvider();
-                cryptoProvider.Key = reader.ReadBytes(reader.ReadByte());
-                cryptoProvider.IV = reader.ReadBytes(reader.ReadByte());
-
-                // Read in the directory and file headers.
-                RootDirectory = new GamePackDirectory(cryptoProvider, reader);
-            }
-        }
-
-        // ---- PROPERTIES ---------------------------------------------------------------------------------------------
-
-        /// <summary>
-        /// Gets the time and date from which this pack can be used.
-        /// </summary>
-        public DateTime ValidFrom
-        {
-            get;
-            private set;
-        }
-
-        /// <summary>
-        /// Gets the time and date until which this pack can be used.
-        /// </summary>
-        public DateTime ValidTo
-        {
-            get;
-            private set;
-        }
-
-        public GamePackDirectory RootDirectory
-        {
-            get;
-            private set;
-        }
-
-        // ---- METHODS (PUBLIC) ---------------------------------------------------------------------------------------
+        // ---- METHODS (INTERNAL) -------------------------------------------------------------------------------------
 
         /// <summary>
         /// Stores a <see cref="GamePack"/> under the given file name, encrypting it with the given key and including
@@ -96,8 +28,10 @@ namespace Syroot.CafiineServer.Common
         /// <param name="directory">The root directory which contents will be included.</param>
         /// <param name="validFrom">The date and time at which the package starts to be usable.</param>
         /// <param name="validTo">The date and time at which the package cannot be used anymore.</param>
-        public static void Create(string fileName, string directory, DateTime validFrom, DateTime validTo)
+        internal static void CreateFile(string fileName, string directory, DateTime validFrom, DateTime validTo)
         {
+            fileName = Path.ChangeExtension(fileName, FileExtension);
+
             // Generate a new AES encryption key and IV to encrypt with.
             AesCryptoServiceProvider cryptoProvider = new AesCryptoServiceProvider();
             ICryptoTransform cryptoTransform = cryptoProvider.CreateEncryptor();
@@ -140,7 +74,7 @@ namespace Syroot.CafiineServer.Common
         }
 
         // ---- METHODS (PRIVATE) --------------------------------------------------------------------------------------
-        
+
         private static long GetHeaderSizesRecursive(GamePackDirectory directory)
         {
             long size = 2 + directory.EncryptedName.Length + 4 + 4; // Name and file / directory count
@@ -154,7 +88,7 @@ namespace Syroot.CafiineServer.Common
             }
             return size;
         }
-        
+
         private static void WriteDirectory(ICryptoTransform cryptoTransform, BinaryDataWriter writer,
             GamePackDirectory directory, ref long fileOffset)
         {
@@ -169,7 +103,7 @@ namespace Syroot.CafiineServer.Common
                 // Write the name and size of the file.
                 writer.Write((short)file.EncryptedName.Length);
                 writer.Write(file.EncryptedName);
-                writer.Write(file.Size);
+                writer.Write(file.Length);
                 // Write the encrypted data at the corresponding offset.
                 writer.Write(fileOffset);
                 byte[] encryptedFileData = cryptoTransform.EncryptFile(file.FullPath);

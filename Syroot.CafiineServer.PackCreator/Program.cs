@@ -1,10 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
-using Syroot.CafiineServer.Common;
+using Syroot.CafiineServer.PackCreator.Pack;
 
 namespace Syroot.CafiineServer.PackCreator
 {
-    internal class Program
+    /// <summary>
+    /// The main class of the application containing the program entry point.
+    /// </summary>
+    internal static class Program
     {
         // ---- MEMBERS ------------------------------------------------------------------------------------------------
 
@@ -15,10 +18,9 @@ namespace Syroot.CafiineServer.PackCreator
         private static void Main(string[] args)
         {
             ParseArguments(args);
-            //GamePack.Create(@"D:\Pictures\test.csgp",
-            //    @"D:\Archive\Hacking\Wii U\Cafiine\cafiine_root\00050000-1010ED00",
-            //    DateTime.MinValue, DateTime.MaxValue);
-            GamePack bla = new GamePack(@"D:\Pictures\test.csgp");
+            GamePack.CreateFile(@"D:\Pictures\test.csgp",
+                @"D:\Archive\Hacking\Wii U\Cafiine\cafiine_root\00050000-1010ED00",
+                DateTime.MinValue, DateTime.MaxValue);
         }
 
         private static void ParseArguments(string[] args)

@@ -2,7 +2,7 @@
 using System.Security.Cryptography;
 using Syroot.CafiineServer.Common.IO;
 
-namespace Syroot.CafiineServer.Common
+namespace Syroot.CafiineServer.PackCreator.Pack
 {
     /// <summary>
     /// Extension methods for the <see cref="ICryptoTransform"/> interface.
@@ -10,22 +10,7 @@ namespace Syroot.CafiineServer.Common
     internal static class ICryptoTransformExtensions
     {
         // ---- METHODS (INTERNAL) -------------------------------------------------------------------------------------
-
-        /// <summary>
-        /// Decrypts text with from the givenencrypted data.
-        /// </summary>
-        /// <param name="cryptoTransform">The encryption transformation to use.</param>
-        /// <param name="value">The data to decrypt.</param>
-        /// <returns>The decrypted text.</returns>
-        internal static string DecryptString(this ICryptoTransform cryptoTransform, byte[] value)
-        {
-            using (MemoryStream memoryStream = new MemoryStream(cryptoTransform.TransformFinalBlock(value, 0, value.Length)))
-            using (BinaryDataReader reader = new BinaryDataReader(memoryStream))
-            {
-                return reader.ReadString(BinaryStringFormat.ZeroTerminated);
-            }
-        }
-
+        
         /// <summary>
         /// Encrypts the given text and returns the encrypted data.
         /// </summary>

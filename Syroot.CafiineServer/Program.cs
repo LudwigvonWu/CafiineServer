@@ -31,7 +31,7 @@ namespace Syroot.CafiineServer
             }
             
             // Create a server and make it listen for incoming connections.
-            Server server = new Server(IPAddress.Any, 7332, rootDirectory, "logs");
+            Server server = new Server(IPAddress.Any, 7332, rootDirectory, "dump", "logs");
             server.Run();
         }
     }
