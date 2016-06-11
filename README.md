@@ -46,6 +46,6 @@ This server does not store dumped files beside their "-request" file like the or
 If the server is started with the DUMPALL parameter, every queried file will be dumped, basically recreating the game contents in the dump\titleID folder.
 
 ## Optimized Console Output / Logging
-I like fancy text and made the console output a bit more colorful and changed a lot of the messages.
+I like fancy text and made the console output a bit more colorful and changed a lot of the messages. When using game packs, replaced files are of course not shown to keep the modded file names secret (it still shows which files are queried).
 
 Logging tries to store complete logs for a client, rather than a connection (not yet implemented). The log folder can be set when starting the server.
