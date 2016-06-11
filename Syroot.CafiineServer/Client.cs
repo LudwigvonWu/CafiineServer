@@ -7,6 +7,7 @@ using System.Text;
 using System.Threading;
 using Syroot.CafiineServer.Common.IO;
 using Syroot.CafiineServer.IO;
+using Syroot.CafiineServer.Storage;
 
 namespace Syroot.CafiineServer
 {
@@ -27,7 +28,7 @@ namespace Syroot.CafiineServer
         private BinaryDataWriter            _writer;
         private uint[]                      _titleIDParts;
         private string                      _titleID;
-        private FileStream[]                _fileStreams;
+        private Stream[]                    _fileStreams;
         private Dictionary<int, FileStream> _dumpStreams;
 
         // ---- CONSTRUCTORS & DESTRUCTOR ------------------------------------------------------------------------------
@@ -45,7 +46,7 @@ namespace Syroot.CafiineServer
             _clientCounter++;
             _clientID = _clientCounter;
 
-            _fileStreams = new FileStream[256];
+            _fileStreams = new Stream[256];
             _dumpStreams = new Dictionary<int, FileStream>();
         }
         
@@ -82,7 +83,7 @@ namespace Syroot.CafiineServer
                         _titleID);
 
                     // Check if any game data is available for this title.
-                    if (!Directory.Exists(Path.Combine(_server.RootDirectory, _titleID)))
+                    if (!_server.Storage.DirectoryExists(_titleID))
                     {
                         Log(ConsoleColor.Gray, "> No data available for title {0}.", _titleID);
                         _writer.Write((byte)ClientCommand.Normal);
@@ -149,7 +150,8 @@ namespace Syroot.CafiineServer
             string fullPath = GetServerPath(path);
             Log(ConsoleColor.Cyan, "Querying '{0}' (mode={1})", fullPath, mode.ToUpper());
             bool requestSlow = false;
-            if (File.Exists(fullPath))
+            StorageFile file = _server.Storage.GetFile(_titleID + path);
+            if (file != null)
             {
                 // We have a replacement file, find and send back a new virtual file handle.
                 int handle = -1;
@@ -171,8 +173,11 @@ namespace Syroot.CafiineServer
                     return;
                 }
                 // Open a new file stream on the replacement file under this handle.
-                Log(ConsoleColor.Green, "> Replacing '{0}' (mode={1}, handle={2})", path, mode.ToUpper(), handle);
-                _fileStreams[handle] = new FileStream(fullPath, FileMode.Open, FileAccess.Read, FileShare.Read);
+                if (file.GetType() == typeof(RawStorageFile))
+                {
+                    Log(ConsoleColor.Green, "> Replacing '{0}' (mode={1}, handle={2})", path, mode.ToUpper(), handle);
+                }
+                _fileStreams[handle] = file.GetStream();
                 // Send back that we have a replacement file with the found handle.
                 _writer.Write((byte)ClientCommand.Special);
                 _writer.Write(0);
@@ -238,7 +243,7 @@ namespace Syroot.CafiineServer
             {
                 // Get the file stream to read from.
                 int handle = (fileDescriptor >> 8) & 0xFF;
-                FileStream fileStream = _fileStreams[handle];
+                Stream fileStream = _fileStreams[handle];
                 if (fileStream == null)
                 {
                     // The file could not be read because it was not opened before.
@@ -278,7 +283,7 @@ namespace Syroot.CafiineServer
             {
                 // Get the stream of the file to be closed.
                 int handle = (fileDescriptor >> 8) & 0xFF;
-                FileStream fileStream = _fileStreams[handle];
+                Stream fileStream = _fileStreams[handle];
                 if (fileStream == null)
                 {
                     // The file could not be closed because it was never open.
@@ -323,7 +328,7 @@ namespace Syroot.CafiineServer
             {
                 // Get the stream of the file to seek in.
                 int handle = (fileDescriptor >> 8) & 0xFF;
-                FileStream fileStream = _fileStreams[handle];
+                Stream fileStream = _fileStreams[handle];
                 if (fileStream == null)
                 {
                     // The file could not be seeked in because it is not open.
@@ -355,7 +360,7 @@ namespace Syroot.CafiineServer
             {
                 // Get the stream of the file which information is requested.
                 int handle = (fileDescriptor >> 8) & 0xFF;
-                FileStream fileStream = _fileStreams[handle];
+                Stream fileStream = _fileStreams[handle];
                 if (fileStream == null)
                 {
                     // The information could not be retrieved because the file is not open.
@@ -395,7 +400,7 @@ namespace Syroot.CafiineServer
             {
                 // Get the stream of the file which position is queried to be at the end of the file.
                 int handle = (fileDescriptor >> 8) & 0xFF;
-                FileStream fileStream = _fileStreams[handle];
+                Stream fileStream = _fileStreams[handle];
                 if (fileStream == null)
                 {
                     // The information cannot be retrieved as the file is not open.
@@ -425,7 +430,7 @@ namespace Syroot.CafiineServer
             {
                 // Get the stream of the file which position is queried.
                 int handle = (fileDescriptor >> 8) & 0xFF;
-                FileStream fileStream = _fileStreams[handle];
+                Stream fileStream = _fileStreams[handle];
                 if (fileStream == null)
                 {
                     // The position cannot be retrieved as the file is not open.
