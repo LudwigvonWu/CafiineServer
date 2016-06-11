@@ -51,11 +51,13 @@
     <Compile Include="Pack\GamePack.cs" />
     <Compile Include="Pack\GamePackDirectory.cs" />
     <Compile Include="Pack\GamePackFile.cs" />
+    <Compile Include="Pack\SafeCryptoStream.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Server.cs" />
     <Compile Include="Storage\PackStorageDirectory.cs" />
     <Compile Include="Storage\PackStorageFile.cs" />
+    <Compile Include="Storage\RootStorageDirectory.cs" />
     <Compile Include="Storage\RawStorageDirectory.cs" />
     <Compile Include="Storage\RawStorageFile.cs" />
     <Compile Include="Storage\StorageSystem.cs" />

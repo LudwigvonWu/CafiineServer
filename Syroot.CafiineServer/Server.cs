@@ -22,23 +22,23 @@ namespace Syroot.CafiineServer
         /// </summary>
         /// <param name="ipAddress">The IP address to run the server on.</param>
         /// <param name="port">The port on which to listen for incoming connections.</param>
-        /// <param name="rootDirectory">The root directory containing the game data.</param>
+        /// <param name="dataDirectory">The directory containing the game data.</param>
         /// <param name="logDirectory">The log directory into which log files will be written.</param>
-        internal Server(IPAddress ipAddress, int port, string rootDirectory, string dumpDirectory, string logDirectory)
+        internal Server(IPAddress ipAddress, int port, string dataDirectory, string dumpDirectory, string logDirectory)
         {
             IPAddress = ipAddress;
             Port = port;
-            RootDirectory = rootDirectory;
+            DataDirectory = dataDirectory;
             DumpDirectory = dumpDirectory;
             LogDirectory = logDirectory;
 
             // Ensure the directories exist.
-            Directory.CreateDirectory(RootDirectory);
+            Directory.CreateDirectory(DataDirectory);
             Directory.CreateDirectory(DumpDirectory);
             Directory.CreateDirectory(LogDirectory);
 
             // Initialize the storage system.
-            Storage = new StorageSystem(RootDirectory);
+            Storage = new StorageSystem(DataDirectory);
         }
 
         // ---- PROPERTIES ---------------------------------------------------------------------------------------------
@@ -64,7 +64,7 @@ namespace Syroot.CafiineServer
         /// <summary>
         /// Gets the directory in which game data is available.
         /// </summary>
-        internal string RootDirectory
+        internal string DataDirectory
         {
             get;
             private set;
@@ -110,8 +110,9 @@ namespace Syroot.CafiineServer
             listener.Start();
             Log(ConsoleColor.Yellow, "Cafiine server started.");
             Log(ConsoleColor.Yellow, "Local Server IPs: {0} (on port {1})", String.Join(", ", GetLocalIPs()), Port);
-            Log(ConsoleColor.Yellow, "Root directory  : {0}", Path.GetFullPath(RootDirectory));
-            Log(ConsoleColor.Yellow, "Log directory   : {0}", Path.GetFullPath(RootDirectory));
+            Log(ConsoleColor.Yellow, "Data directory  : {0}", Path.GetFullPath(DataDirectory));
+            Log(ConsoleColor.Yellow, "Dump directory  : {0}", Path.GetFullPath(DumpDirectory));
+            Log(ConsoleColor.Yellow, "Log directory   : {0}", Path.GetFullPath(LogDirectory));
             Log(ConsoleColor.DarkYellow, "Listening for new connections...");
 
             // Repeatedly wait for new incoming connections.

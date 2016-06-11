@@ -1,5 +1,4 @@
-﻿using System;
-using System.IO;
+﻿using System.IO;
 
 namespace Syroot.CafiineServer.Storage
 {
@@ -23,25 +22,15 @@ namespace Syroot.CafiineServer.Storage
         /// <param name="rootDirectory">The directory to represent.</param>
         internal StorageSystem(string rootDirectory)
         {
-            RootDirectory = rootDirectory;
-            Root = new RawStorageDirectory(new DirectoryInfo(RootDirectory));
+            Root = new RootStorageDirectory(new DirectoryInfo(rootDirectory));
         }
 
         // ---- PROPERTIES ---------------------------------------------------------------------------------------------
-
-        /// <summary>
-        /// Gets the path to the root directory.
-        /// </summary>
-        internal string RootDirectory
-        {
-            get;
-            private set;
-        }
-
+        
         /// <summary>
         /// Gets the root directory of the storage system which contains all available game data.
         /// </summary>
-        internal StorageDirectory Root
+        internal RootStorageDirectory Root
         {
             get;
             private set;
@@ -90,7 +79,7 @@ namespace Syroot.CafiineServer.Storage
             string directoryName = isLastDirectory ? path : path.Substring(0, separatorIndex);
 
             // Check if this directory exists in the given or child ones.
-            foreach (StorageDirectory subDirectory in directory.Directories)
+            foreach (StorageDirectory subDirectory in directory.GetDirectories())
             {
                 if (subDirectory.Name == directoryName)
                 {
@@ -111,7 +100,7 @@ namespace Syroot.CafiineServer.Storage
             if (isFileName)
             {
                 // Try to find the file in the final directory.
-                foreach (StorageFile file in directory.Files)
+                foreach (StorageFile file in directory.GetFiles())
                 {
                     if (file.Name == name)
                     {
@@ -122,7 +111,7 @@ namespace Syroot.CafiineServer.Storage
             else
             {
                 // Try to find the current directory in the path.
-                foreach (StorageDirectory subDirectory in directory.Directories)
+                foreach (StorageDirectory subDirectory in directory.GetDirectories())
                 {
                     if (subDirectory.Name == name)
                     {

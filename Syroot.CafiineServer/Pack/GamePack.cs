@@ -120,7 +120,7 @@ namespace Syroot.CafiineServer.Pack
         }
 
         // ---- METHODS (INTERNAL) -------------------------------------------------------------------------------------
-        
+
         /// <summary>
         /// Returns the decrypted file data of the given <see cref="GamePackFile"/>.
         /// </summary>
@@ -133,8 +133,8 @@ namespace Syroot.CafiineServer.Pack
             {
                 // Seek to the start of the decrypted file data and decrypt it into the buffer.
                 fileStream.Position = file.Offset;
-                using (CryptoStream cryptoStream = new CryptoStream(fileStream, _cryptoAlgorithm.CreateDecryptor(),
-                    CryptoStreamMode.Read))
+                using (SafeCryptoStream cryptoStream = new SafeCryptoStream(fileStream,
+                    _cryptoAlgorithm.CreateDecryptor(), CryptoStreamMode.Read))
                 {
                     cryptoStream.Read(decryptedData, 0, decryptedData.Length);
                 }

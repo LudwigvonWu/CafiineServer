@@ -465,7 +465,7 @@ namespace Syroot.CafiineServer
         private string GetServerPath(string queriedPath)
         {
             queriedPath = queriedPath.TrimStart('/').Replace('/', Path.DirectorySeparatorChar);
-            return Path.Combine(_server.RootDirectory, _titleID, queriedPath);
+            return Path.Combine(_server.DataDirectory, _titleID, queriedPath);
         }
 
         private void Log(ConsoleColor color, string format, params object[] args)

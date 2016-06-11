@@ -18,8 +18,6 @@ namespace Syroot.CafiineServer.Storage
         internal StorageDirectory(string name)
         {
             Name = name;
-            Directories = new List<StorageDirectory>();
-            Files = new List<StorageFile>();
         }
 
         // ---- PROPERTIES ---------------------------------------------------------------------------------------------
@@ -33,22 +31,18 @@ namespace Syroot.CafiineServer.Storage
             private set;
         }
 
-        /// <summary>
-        /// Gets the child directories in this directory.
-        /// </summary>
-        internal List<StorageDirectory> Directories
-        {
-            get;
-            private set;
-        }
+        // ---- METHODS (INTERNAL) -------------------------------------------------------------------------------------
 
         /// <summary>
-        /// Gets the files in this directory.
+        /// Returns the child directories in this directory.
         /// </summary>
-        internal List<StorageFile> Files
-        {
-            get;
-            private set;
-        }
+        /// <returns>The list of child directories.</returns>
+        internal abstract IEnumerable<StorageDirectory> GetDirectories();
+
+        /// <summary>
+        /// Returns the files in this directory.
+        /// </summary>
+        /// <returns>The list of files.</returns>
+        internal abstract IEnumerable<StorageFile> GetFiles();
     }
 }

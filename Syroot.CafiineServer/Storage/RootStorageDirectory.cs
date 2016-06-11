@@ -1,26 +1,34 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.IO;
 using Syroot.CafiineServer.Pack;
 
 namespace Syroot.CafiineServer.Storage
 {
     /// <summary>
-    /// Represents a directory stored directly in the file system.
+    /// Represents a directory stored directly in the file system, containing game packs or other sub directories.
     /// </summary>
-    internal class RawStorageDirectory : StorageDirectory
+    internal class RootStorageDirectory : StorageDirectory
     {
+        // ---- MEMBERS ------------------------------------------------------------------------------------------------
+        
+        private Dictionary<string, GamePack> _loadedGamePacks;
+        private object                       _loadedGamePacksMutex;
+
         // ---- CONSTRUCTORS & DESTRUCTOR ------------------------------------------------------------------------------
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="RawStorageDirectory"/> class for the given
+        /// Initializes a new instance of the <see cref="RootStorageDirectory"/> class for the given
         /// <see cref="DirectoryInfo"/>.
         /// </summary>
         /// <param name="directoryInfo">The directory to represent.</param>
-        internal RawStorageDirectory(DirectoryInfo directoryInfo)
+        internal RootStorageDirectory(DirectoryInfo directoryInfo)
             : base(directoryInfo.Name)
         {
             DirectoryInfo = directoryInfo;
+
+            // Create a dictionary to remember instantiated game packs (these are kept for the root directory).
+            _loadedGamePacks = new Dictionary<string, GamePack>();
+            _loadedGamePacksMutex = new object();
         }
 
         // ---- PROPERTIES ---------------------------------------------------------------------------------------------
@@ -48,6 +56,24 @@ namespace Syroot.CafiineServer.Storage
                 if (!subDirectory.Attributes.HasFlag(FileAttributes.Hidden))
                 {
                     yield return new RawStorageDirectory(subDirectory);
+                }
+            }
+            // Read the pack child directories.
+            foreach (FileInfo packFile in DirectoryInfo.GetFiles("*" + GamePack.FileExtension))
+            {
+                if (!packFile.Attributes.HasFlag(FileAttributes.Hidden))
+                {
+                    // Load the game pack if it has not been loaded yet.
+                    GamePack gamePack;
+                    lock (_loadedGamePacksMutex)
+                    {
+                        if (!_loadedGamePacks.TryGetValue(packFile.FullName, out gamePack))
+                        {
+                            gamePack = new GamePack(packFile.FullName);
+                            _loadedGamePacks.Add(packFile.FullName, gamePack);
+                        }
+                    }
+                    yield return new PackStorageDirectory(gamePack, gamePack.RootDirectory);
                 }
             }
         }

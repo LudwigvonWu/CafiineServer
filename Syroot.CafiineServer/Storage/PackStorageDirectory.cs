@@ -1,4 +1,5 @@
-﻿using Syroot.CafiineServer.Pack;
+﻿using System.Collections.Generic;
+using Syroot.CafiineServer.Pack;
 
 namespace Syroot.CafiineServer.Storage
 {
@@ -7,6 +8,11 @@ namespace Syroot.CafiineServer.Storage
     /// </summary>
     internal class PackStorageDirectory : StorageDirectory
     {
+        // ---- MEMBERS ------------------------------------------------------------------------------------------------
+
+        private List<PackStorageDirectory> _directories;
+        private List<PackStorageFile>      _files;
+
         // ---- CONSTRUCTORS & DESTRUCTOR ------------------------------------------------------------------------------
 
         /// <summary>
@@ -22,15 +28,17 @@ namespace Syroot.CafiineServer.Storage
             GamePackDirectory = directory;
 
             // Read the child directories.
+            _directories = new List<PackStorageDirectory>();
             foreach (GamePackDirectory subDirectory in GamePackDirectory.Directories)
             {
-                Directories.Add(new PackStorageDirectory(gamePack, subDirectory));
+                _directories.Add(new PackStorageDirectory(gamePack, subDirectory));
             }
 
             // Read the files.
+            _files = new List<PackStorageFile>();
             foreach (GamePackFile file in GamePackDirectory.Files)
             {
-                Files.Add(new PackStorageFile(gamePack, file));
+                _files.Add(new PackStorageFile(gamePack, file));
             }
         }
 
@@ -52,6 +60,26 @@ namespace Syroot.CafiineServer.Storage
         {
             get;
             private set;
+        }
+
+        // ---- METHODS (INTERNAL) -------------------------------------------------------------------------------------
+        
+        /// <summary>
+        /// Returns the child directories in this directory.
+        /// </summary>
+        /// <returns>The list of child directories.</returns>
+        internal override IEnumerable<StorageDirectory> GetDirectories()
+        {
+            return _directories;
+        }
+
+        /// <summary>
+        /// Returns the files in this directory.
+        /// </summary>
+        /// <returns>The list of files.</returns>
+        internal override IEnumerable<StorageFile> GetFiles()
+        {
+            return _files;
         }
     }
 }
