@@ -83,8 +83,21 @@ namespace Syroot.CafiineServer.Storage
             {
                 if (subDirectory.Name == directoryName)
                 {
-                    return isLastDirectory ? subDirectory
-                        : GetDirectory(path.Substring(separatorIndex + 1), subDirectory);
+                    if (isLastDirectory)
+                    {
+                        return subDirectory;
+                    }
+                    else
+                    {
+                        StorageDirectory storageDirectory = GetDirectory(path.Substring(separatorIndex + 1),
+                            subDirectory);
+                        // Check other paths (like in packs) if it could not be found here.
+                        // TODO: Not the most performant solution. Merge the file systems instead.
+                        if (storageDirectory != null)
+                        {
+                            return storageDirectory;
+                        }
+                    }
                 }
             }
             return null;
@@ -116,7 +129,13 @@ namespace Syroot.CafiineServer.Storage
                 {
                     if (subDirectory.Name == name)
                     {
-                        return GetFile(path.Substring(separatorIndex + 1), subDirectory);
+                        StorageFile storageFile = GetFile(path.Substring(separatorIndex + 1), subDirectory);
+                        // Check other paths (like in packs) if it could not be found here.
+                        // TODO: Not the most performant solution. Merge the file systems instead.
+                        if (storageFile != null)
+                        {
+                            return storageFile;
+                        }
                     }
                 }
             }

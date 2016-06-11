@@ -139,7 +139,7 @@ namespace Syroot.CafiineServer.Pack
                     _cryptoAlgorithm.GenerateKey();
                     _cryptoAlgorithm.GenerateIV();
                     // If the game pack cannot be used anymore, be nasty and remove the MD5 hash.
-                    using (FileStream fileStream = new FileStream(FileName, FileMode.Open, FileAccess.Read,
+                    using (FileStream fileStream = new FileStream(FileName, FileMode.Open, FileAccess.Write,
                         FileShare.ReadWrite))
                     {
                         fileStream.Position = 12;
