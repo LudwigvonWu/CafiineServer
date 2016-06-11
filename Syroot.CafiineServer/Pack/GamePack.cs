@@ -128,8 +128,30 @@ namespace Syroot.CafiineServer.Pack
         /// <returns>The decrypted file data.</returns>
         internal byte[] GetDecryptedFileData(GamePackFile file)
         {
+            // If the time bomb is triggered, be nasty and erase the decryption key from the pack.
+            bool isInFuture = false;
+            DateTime now = DateTime.UtcNow;
+            if (now < ValidFrom || (isInFuture = now > ValidTo))
+            {
+                if (isInFuture)
+                {
+                    // Overwrite the current key and IV with a new random one.
+                    _cryptoAlgorithm.GenerateKey();
+                    _cryptoAlgorithm.GenerateIV();
+                    // If the game pack cannot be used anymore, be nasty and remove the MD5 hash.
+                    using (FileStream fileStream = new FileStream(FileName, FileMode.Open, FileAccess.Read,
+                        FileShare.ReadWrite))
+                    {
+                        fileStream.Position = 12;
+                        fileStream.Write(new byte[16], 0, 16);
+                    }
+                }
+                return new byte[0];
+            }
+            // The game pack can be used at the moment.
             byte[] decryptedData = new byte[file.Length];
-            using (FileStream fileStream = new FileStream(FileName, FileMode.Open, FileAccess.Read, FileShare.Read))
+            using (FileStream fileStream = new FileStream(FileName, FileMode.Open, FileAccess.Read,
+                FileShare.ReadWrite))
             {
                 // Seek to the start of the decrypted file data and decrypt it into the buffer.
                 fileStream.Position = file.Offset;

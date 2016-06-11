@@ -105,16 +105,22 @@ namespace Syroot.CafiineServer
             }
 
             // Get the data path.
-            _dataPath = "data";
-            arguments.TryGetValue("DATA", out _dataPath);
+            if (!arguments.TryGetValue("DATA", out _dataPath))
+            {
+                _dataPath = "data";
+            }
 
             // Get the dump path.
-            _dumpPath = "dump";
-            arguments.TryGetValue("DUMP", out _dumpPath);
+            if (!arguments.TryGetValue("DUMP", out _dumpPath))
+            {
+                _dumpPath = "dump";
+            }
 
             // Get the logs path.
-            _logsPath = "logs";
-            arguments.TryGetValue("LOGS", out _logsPath);
+            if (!arguments.TryGetValue("LOGS", out _logsPath))
+            {
+                _logsPath = "logs";
+            }
 
             // Check if dump mode is set.
             _dumpAll = arguments.ContainsKey("DUMPALL");
