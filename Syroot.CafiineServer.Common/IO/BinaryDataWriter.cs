@@ -2,12 +2,12 @@
 using System.IO;
 using System.Text;
 
-namespace Syroot.CafiineServer.IO
+namespace Syroot.CafiineServer.Common.IO
 {
     /// <summary>
     /// Represents an extended <see cref="BinaryWriter"/> supporting special file format data types.
     /// </summary>
-    internal class BinaryDataWriter : BinaryWriter
+    public class BinaryDataWriter : BinaryWriter
     {
         // ---- MEMBERS ------------------------------------------------------------------------------------------------
 
@@ -170,6 +170,9 @@ namespace Syroot.CafiineServer.IO
             {
                 case BinaryDateTimeFormat.CTime:
                     Write((uint)(new DateTime(1970, 1, 1) - value.ToLocalTime()).TotalSeconds);
+                    break;
+                case BinaryDateTimeFormat.NetTicks:
+                    Write(value.Ticks);
                     break;
                 default:
                     throw new ArgumentOutOfRangeException("format", "The specified binary datetime format is invalid.");

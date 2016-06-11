@@ -1,4 +1,4 @@
-﻿namespace Syroot.CafiineServer.IO
+﻿namespace Syroot.CafiineServer.Common.IO
 {
     using System;
     using System.IO;

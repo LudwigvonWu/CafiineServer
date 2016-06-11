@@ -3,12 +3,12 @@ using System.Collections.Generic;
 using System.IO;
 using System.Text;
 
-namespace Syroot.CafiineServer.IO
+namespace Syroot.CafiineServer.Common.IO
 {
     /// <summary>
     /// Represents an extended <see cref="BinaryReader"/> supporting special file format data types.
     /// </summary>
-    internal class BinaryDataReader : BinaryReader
+    public class BinaryDataReader : BinaryReader
     {
         // ---- MEMBERS ------------------------------------------------------------------------------------------------
 
@@ -144,6 +144,8 @@ namespace Syroot.CafiineServer.IO
             {
                 case BinaryDateTimeFormat.CTime:
                     return new DateTime(1970, 1, 1).ToLocalTime().AddSeconds(ReadUInt32());
+                case BinaryDateTimeFormat.NetTicks:
+                    return new DateTime(ReadInt64());
                 default:
                     throw new ArgumentOutOfRangeException("format", "The specified binary datetime format is invalid");
             }

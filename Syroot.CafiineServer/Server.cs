@@ -1,8 +1,8 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Net;
 using System.Net.Sockets;
-using System.Threading;
 
 namespace Syroot.CafiineServer
 {
@@ -84,7 +84,11 @@ namespace Syroot.CafiineServer
             // Create the listener which waits for incoming connections.
             TcpListener listener = new TcpListener(IPAddress, Port);
             listener.Start();
-            Log(ConsoleColor.Yellow, "Listening for connections on port {0}...", Port);
+            Log(ConsoleColor.Yellow, "Cafiine server started.");
+            Log(ConsoleColor.Yellow, "Local Server IPs: {0} (on port {1})", String.Join(", ", GetLocalIPs()), Port);
+            Log(ConsoleColor.Yellow, "Root directory  : {0}", Path.GetFullPath(RootDirectory));
+            Log(ConsoleColor.Yellow, "Log directory   : {0}", Path.GetFullPath(RootDirectory));
+            Log(ConsoleColor.DarkYellow, "Listening for new connections...");
 
             // Repeatedly wait for new incoming connections.
             while (true)
@@ -93,8 +97,21 @@ namespace Syroot.CafiineServer
                 client.HandleAsync();
             }
         }
-        
+
         // ---- METHODS (PRIVATE) --------------------------------------------------------------------------------------
+
+        private IEnumerable<IPAddress> GetLocalIPs()
+        {
+            // Return the IPv4 interface IPs on this machine.
+            IPHostEntry host = Dns.GetHostEntry(Dns.GetHostName());
+            foreach (IPAddress ipAddress in host.AddressList)
+            {
+                if (ipAddress.AddressFamily == AddressFamily.InterNetwork && !IPAddress.IsLoopback(ipAddress))
+                {
+                    yield return ipAddress;
+                }
+            }
+        }
 
         /// <summary>
         /// Appends the message with the given format and arguments to the server log file.

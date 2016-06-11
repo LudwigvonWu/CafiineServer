@@ -1,4 +1,6 @@
-﻿namespace Syroot.CafiineServer.IO
+﻿using Syroot.CafiineServer.Common.IO;
+
+namespace Syroot.CafiineServer.IO
 {
     /// <summary>
     /// Represents extension methods for the <see cref="BinaryDataWriter"/> class.

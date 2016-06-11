@@ -36,11 +36,11 @@ namespace Syroot.CafiineServer
     [Flags]
     internal enum FSStatFlag : uint
     {
-        None = 0,
-        unk_14_present = 0x01000000,
-        mtime_present = 0x04000000,
-        ctime_present = 0x08000000,
-        entid_present = 0x10000000,
-        directory = 0x80000000,
+        None         = 0,
+        Unk14Present = 0x01000000,
+        MTimePresent = 0x04000000,
+        CTimePresent = 0x08000000,
+        EntIDPresent = 0x10000000,
+        Directory    = 0x80000000,
     }
 }

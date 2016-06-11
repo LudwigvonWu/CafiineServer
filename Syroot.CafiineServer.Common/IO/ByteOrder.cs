@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Syroot.CafiineServer.IO
+namespace Syroot.CafiineServer.Common.IO
 {
     /// <summary>
     /// Represents the possible endianness of binary data.

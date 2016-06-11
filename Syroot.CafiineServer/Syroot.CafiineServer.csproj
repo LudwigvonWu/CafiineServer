@@ -46,18 +46,20 @@
   <ItemGroup>
     <Compile Include="Client.cs" />
     <Compile Include="FileSystem.cs" />
-    <Compile Include="IO\BinaryDataFormats.cs" />
-    <Compile Include="IO\BinaryDataReader.cs" />
     <Compile Include="IO\BinaryDataWriterExtensions.cs" />
-    <Compile Include="IO\BinaryDataWriter.cs" />
-    <Compile Include="IO\ByteOrder.cs" />
-    <Compile Include="IO\SeekTask.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Server.cs" />
+    <None Include="Storage.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Properties\app.config" />
+    <None Include="Properties\App.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Syroot.CafiineServer.Common\Syroot.CafiineServer.Common.csproj">
+      <Project>{92902185-a5d9-4cbf-a722-c21d09d713a2}</Project>
+      <Name>Syroot.CafiineServer.Common</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

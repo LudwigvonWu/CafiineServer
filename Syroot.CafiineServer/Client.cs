@@ -5,6 +5,7 @@ using System.Net.Sockets;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading;
+using Syroot.CafiineServer.Common.IO;
 using Syroot.CafiineServer.IO;
 
 namespace Syroot.CafiineServer
@@ -175,7 +176,7 @@ namespace Syroot.CafiineServer
                 // Send back that we have a replacement file with the found handle.
                 _writer.Write((byte)ClientCommand.Special);
                 _writer.Write(0);
-                _writer.Write(0x0fff00ff | (handle << 8));
+                _writer.Write(0x0FFF00FF | (handle << 8));
             }
             else if (!File.Exists(fullPath + "-dump")
                 && (File.Exists(fullPath + "-request") || (requestSlow = File.Exists(fullPath + "-request_slow"))))
@@ -318,10 +319,10 @@ namespace Syroot.CafiineServer
             int fileDescriptor = _reader.ReadInt32();
             int position = _reader.ReadInt32();
 
-            if ((fileDescriptor & 0x0fff00ff) == 0x0fff00ff)
+            if ((fileDescriptor & 0x0FFF00FF) == 0x0FFF00FF)
             {
                 // Get the stream of the file to seek in.
-                int handle = (fileDescriptor >> 8) & 0xff;
+                int handle = (fileDescriptor >> 8) & 0xFF;
                 FileStream fileStream = _fileStreams[handle];
                 if (fileStream == null)
                 {
@@ -350,10 +351,10 @@ namespace Syroot.CafiineServer
             // Read the message parameters.
             int fileDescriptor = _reader.ReadInt32();
 
-            if ((fileDescriptor & 0x0fff00ff) == 0x0fff00ff)
+            if ((fileDescriptor & 0x0FFF00FF) == 0x0FFF00FF)
             {
                 // Get the stream of the file which information is requested.
-                int handle = (fileDescriptor >> 8) & 0xff;
+                int handle = (fileDescriptor >> 8) & 0xFF;
                 FileStream fileStream = _fileStreams[handle];
                 if (fileStream == null)
                 {
@@ -370,7 +371,7 @@ namespace Syroot.CafiineServer
                     fileStats.Flags = FSStatFlag.None;
                     fileStats.Permission = 0x400;
                     fileStats.Owner = _titleIDParts[1];
-                    fileStats.Group = 0x101e;
+                    fileStats.Group = 0x101E;
                     fileStats.FileSize = (uint)fileStream.Length;
                     // Send the file information to Cafiine.
                     _writer.Write((byte)ClientCommand.Special);
@@ -390,10 +391,10 @@ namespace Syroot.CafiineServer
             // Read the message parameters.
             int fileDescriptor = _reader.ReadInt32();
 
-            if ((fileDescriptor & 0x0fff00ff) == 0x0fff00ff)
+            if ((fileDescriptor & 0x0FFF00FF) == 0x0FFF00FF)
             {
                 // Get the stream of the file which position is queried to be at the end of the file.
-                int handle = (fileDescriptor >> 8) & 0xff;
+                int handle = (fileDescriptor >> 8) & 0xFF;
                 FileStream fileStream = _fileStreams[handle];
                 if (fileStream == null)
                 {
@@ -420,10 +421,10 @@ namespace Syroot.CafiineServer
             // Read the message parameters.
             int fileDescriptor = _reader.ReadInt32();
 
-            if ((fileDescriptor & 0x0fff00ff) == 0x0fff00ff)
+            if ((fileDescriptor & 0x0FFF00FF) == 0x0FFF00FF)
             {
                 // Get the stream of the file which position is queried.
-                int handle = (fileDescriptor >> 8) & 0xff;
+                int handle = (fileDescriptor >> 8) & 0xFF;
                 FileStream fileStream = _fileStreams[handle];
                 if (fileStream == null)
                 {
