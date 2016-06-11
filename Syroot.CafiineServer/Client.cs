@@ -124,7 +124,7 @@ namespace Syroot.CafiineServer
             finally
             {
                 // Close all file handles.
-                foreach (FileStream fileStream in _fileStreams)
+                foreach (Stream fileStream in _fileStreams)
                 {
                     if (fileStream != null) fileStream.Dispose();
                 }

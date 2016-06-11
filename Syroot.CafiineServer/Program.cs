@@ -56,7 +56,7 @@ namespace Syroot.CafiineServer
             Console.WriteLine("        PORT     The port under which the server will listen for incoming client");
             Console.WriteLine("                 connections. Defaults to 7332.");
             Console.WriteLine("        IP       The IP address on which the server runs. Defaults to all IPv4");
-            Console.WriteLine("                 IPv4 network interfaces of the computer.");
+            Console.WriteLine("                 network interfaces of the computer.");
             Console.WriteLine("        DATA     The path to the game data directory containing either game packs");
             Console.WriteLine("                 or title ID folders. Defaults to 'data'.");
             Console.WriteLine("        DUMP     The path to the directory in which file dumps will be stored.");
