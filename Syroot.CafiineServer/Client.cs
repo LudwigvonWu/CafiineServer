@@ -79,11 +79,10 @@ namespace Syroot.CafiineServer
                     // Get the requested title ID.
                     _titleIDParts = _reader.ReadUInt32s(4);
                     _titleID = String.Format("{0:X8}-{1:X8}", _titleIDParts[0], _titleIDParts[1]);
-                    Log(ConsoleColor.White, "Client connected (endpoint={0}, title={1})", _tcpClient.Client.RemoteEndPoint,
-                        _titleID);
+                    Log(ConsoleColor.White, "Client connected (endpoint={0})", _tcpClient.Client.RemoteEndPoint);
 
                     // Check if any game data is available for this title.
-                    if (!_server.Storage.DirectoryExists(_titleID))
+                    if (_server.Storage.GetDirectory(_titleID) == null)
                     {
                         Log(ConsoleColor.Gray, "> No data available for title {0}.", _titleID);
                         _writer.Write((byte)ClientCommand.Normal);
@@ -294,7 +293,10 @@ namespace Syroot.CafiineServer
                 else
                 {
                     // Close the requested file and clear the slot in the file handle array.
-                    Log(ConsoleColor.Gray, "Closing file (handle={0})", handle);
+                    if (fileStream.GetType() == typeof(FileStream))
+                    {
+                        Log(ConsoleColor.Gray, "Closing file (handle={0})", handle);
+                    }
                     fileStream.Dispose();
                     _fileStreams[handle] = null;
                     // Send a response that closing the file was successful.

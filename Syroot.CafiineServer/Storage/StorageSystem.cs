@@ -45,17 +45,17 @@ namespace Syroot.CafiineServer.Storage
         /// <returns><c>true</c> when the directory exists.</returns>
         internal bool DirectoryExists(string path)
         {
-            return DirectoryExists(path, Root);
+            return GetDirectory(path, Root) != null;
         }
-
+        
         /// <summary>
-        /// Returns whether the file exists at the given path relative to the root.
+        /// Returns the <see cref="StorageDirectory"/> at the given path relative to the root.
         /// </summary>
         /// <param name="path">The path relative to the root.</param>
-        /// <returns><c>true</c> when the file exists.</returns>
-        internal bool FileExists(string path)
+        /// <returns>The <see cref="StorageDirectory"/> when it exists or <c>null</c>.</returns>
+        internal StorageDirectory GetDirectory(string path)
         {
-            return GetFile(path, Root) != null;
+            return GetDirectory(path, Root);
         }
 
         /// <summary>
@@ -69,8 +69,8 @@ namespace Syroot.CafiineServer.Storage
         }
 
         // ---- METHODS (PRIVATE) --------------------------------------------------------------------------------------
-        
-        private bool DirectoryExists(string path, StorageDirectory directory)
+
+        private StorageDirectory GetDirectory(string path, StorageDirectory directory)
         {
             // Get the name of the left-most directory in the path.
             path = path.TrimStart(Separator);
@@ -83,12 +83,13 @@ namespace Syroot.CafiineServer.Storage
             {
                 if (subDirectory.Name == directoryName)
                 {
-                    return isLastDirectory || DirectoryExists(path.Substring(separatorIndex + 1), subDirectory);
+                    return isLastDirectory ? subDirectory
+                        : GetDirectory(path.Substring(separatorIndex + 1), subDirectory);
                 }
             }
-            return false;
+            return null;
         }
-
+        
         private StorageFile GetFile(string path, StorageDirectory directory)
         {
             // Get the name of the left-most directory or file in the path.
