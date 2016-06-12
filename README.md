@@ -4,7 +4,7 @@ An extended Cafiine server mostly rewritten from scratch, handling the default W
 At the moment, it offers the following new functionality:
 - Support for encrypted, hash-signed and time-bombed game data packs files (s. section below).
 - Dump mode to dump any queried file automatically, into a separate directory dedicated for dumps.
-- Command line parameters to set port an network interface to listen on.
+- Command line parameters to set port and network interface to listen on.
 - Optimized console output.
 - Several bigger and smaller code and performance optimizations.
 
