@@ -23,9 +23,12 @@ namespace Syroot.CafiineServer
         /// <param name="ipAddress">The IP address to run the server on.</param>
         /// <param name="port">The port on which to listen for incoming connections.</param>
         /// <param name="dataDirectory">The directory containing the game data.</param>
+        /// <param name="dumpDirectory">The directory in which dumped files will be stored.</param>
         /// <param name="logsDirectory">The log directory into which log files will be written.</param>
+        /// <param name="dumpAll">Dump every requested file instead of replacing them.</param>
+        /// <param name="enableFileLogs"><c>true</c> to enable file logging.</param>
         internal Server(IPAddress ipAddress, int port, string dataDirectory, string dumpDirectory, string logsDirectory,
-            bool dumpAll)
+            bool dumpAll, bool enableFileLogs)
         {
             IPAddress = ipAddress;
             Port = port;
@@ -34,13 +37,14 @@ namespace Syroot.CafiineServer
             LogsDirectory = logsDirectory;
             DumpAll = dumpAll;
 
-            // Ensure the directories exist.
-            Directory.CreateDirectory(DataDirectory);
-            Directory.CreateDirectory(DumpDirectory);
-            Directory.CreateDirectory(LogsDirectory);
-            
-            // Initialize the storage system.
+            // Initialize the storage system and log manager.
             Storage = new StorageSystem(DataDirectory);
+
+            // Ensure the dump directory exists.
+            Directory.CreateDirectory(DumpDirectory);
+
+            // Initialize the log manager.
+            Log = new LogManager(LogsDirectory, enableFileLogs);
         }
 
         // ---- PROPERTIES ---------------------------------------------------------------------------------------------
@@ -108,6 +112,15 @@ namespace Syroot.CafiineServer
             private set;
         }
 
+        /// <summary>
+        /// Gets the <see cref="LogManager"/> writing down any logged messages.
+        /// </summary>
+        internal LogManager Log
+        {
+            get;
+            private set;
+        }
+
         // ---- METHODS (INTERNAL) -------------------------------------------------------------------------------------
 
         /// <summary>
@@ -119,12 +132,14 @@ namespace Syroot.CafiineServer
             // Create the listener which waits for incoming connections.
             TcpListener listener = new TcpListener(IPAddress, Port);
             listener.Start();
-            Log(ConsoleColor.Yellow, "Cafiine server started{0}.", DumpAll ? " in dump mode" : null);
-            Log(ConsoleColor.Yellow, "Server IP     : {0} (on port {1})", String.Join(", ", GetLocalIPs()), Port);
-            Log(ConsoleColor.Yellow, "Data directory: {0}", Path.GetFullPath(DataDirectory));
-            Log(ConsoleColor.Yellow, "Dump directory: {0}", Path.GetFullPath(DumpDirectory));
-            Log(ConsoleColor.Yellow, "Logs directory: {0}", Path.GetFullPath(LogsDirectory));
-            Log(ConsoleColor.DarkYellow, "Listening for new connections...");
+            Log.Write(ConsoleColor.Yellow, "SERVER", "Cafiine server started{0}.", DumpAll ? " in dump mode" : null);
+            Log.Write(ConsoleColor.Yellow, "SERVER", "Server IP     : {0} (on port {1})",
+                String.Join(", ", GetLocalIPs()), Port);
+            Log.Write(ConsoleColor.Yellow, "SERVER", "Data directory: {0}", Path.GetFullPath(DataDirectory));
+            Log.Write(ConsoleColor.Yellow, "SERVER", "Dump directory: {0}", Path.GetFullPath(DumpDirectory));
+            Log.Write(ConsoleColor.Yellow, "SERVER", "Logs directory: {0}", Log.EnableFileLogs
+                ? Path.GetFullPath(LogsDirectory) : "disabled");
+            Log.Write(ConsoleColor.DarkYellow, "SERVER", "Listening for new connections...");
 
             // Repeatedly wait for new incoming connections.
             while (true)
@@ -175,12 +190,5 @@ namespace Syroot.CafiineServer
                 }
             }
         }
-        
-        private void Log(ConsoleColor color, string format, params object[] args)
-        {
-            Console.ForegroundColor = color;
-            Console.WriteLine("[SERVER] " + format, args);
-        }
-
     }
 }

@@ -46,6 +46,7 @@
   <ItemGroup>
     <Compile Include="Client.cs" />
     <Compile Include="FileSystem.cs" />
+    <Compile Include="LogManager.cs" />
     <Compile Include="Pack\ICryptoTransformExtensions.cs" />
     <Compile Include="IO\BinaryDataWriterExtensions.cs" />
     <Compile Include="Pack\GamePack.cs" />

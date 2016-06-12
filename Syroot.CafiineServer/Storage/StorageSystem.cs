@@ -22,6 +22,9 @@ namespace Syroot.CafiineServer.Storage
         /// <param name="rootDirectory">The directory to represent.</param>
         internal StorageSystem(string rootDirectory)
         {
+            // Ensure the root directory exists.
+            Directory.CreateDirectory(rootDirectory);
+
             Root = new RootStorageDirectory(new DirectoryInfo(rootDirectory));
         }
 

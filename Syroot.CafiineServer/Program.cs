@@ -18,6 +18,7 @@ namespace Syroot.CafiineServer
         private static string    _logsPath;
         private static string    _dumpPath;
         private static bool      _dumpAll;
+        private static bool      _enabledFileLogs;
 
         // ---- METHODS (PRIVATE) --------------------------------------------------------------------------------------
 
@@ -35,7 +36,8 @@ namespace Syroot.CafiineServer
                     return -1;
                 }
                 // Create a server and make it listen for incoming connections.
-                Server server = new Server(_ipAddress, _port, _dataPath, _dumpPath, _logsPath, _dumpAll);
+                Server server = new Server(_ipAddress, _port, _dataPath, _dumpPath, _logsPath, _dumpAll,
+                    _enabledFileLogs);
                 server.Run();
             }
             catch (Exception ex)
@@ -51,7 +53,7 @@ namespace Syroot.CafiineServer
             Console.WriteLine("Communicates with Wii U Cafiine clients and allows file dump and replacement.");
             Console.WriteLine();
             Console.WriteLine("CAFIINESERVER [/PORT=7332] [/IP=192.168.1.10] [/DATA=DataPath] [/DUMP=DumpPath]");
-            Console.WriteLine("              [/LOGS=LogsPath] [/DUMPALL]");
+            Console.WriteLine("              [/LOGS=LogsPath] [/DUMPALL] [/NOLOGS]");
             Console.WriteLine();
             Console.WriteLine("        PORT     The port under which the server will listen for incoming client");
             Console.WriteLine("                 connections. Defaults to 7332.");
@@ -65,6 +67,8 @@ namespace Syroot.CafiineServer
             Console.WriteLine("                 to 'logs'.");
             Console.WriteLine("        DUMPALL  When specified, the server dumps any file queried by the client.");
             Console.WriteLine("                 Files will not be replaced even if available.");
+            Console.WriteLine("        NOLOGS   When specified, no file logs will be written (but console output");
+            Console.WriteLine("                 is still visible).");
         }
 
         private static void ParseParameters(Dictionary<string, string> arguments)
@@ -105,6 +109,9 @@ namespace Syroot.CafiineServer
 
             // Check if dump mode is set.
             _dumpAll = arguments.ContainsKey("DUMPALL");
+
+            // Check if no logging should be done.
+            _enabledFileLogs = !arguments.ContainsKey("NOLOGS");
         }
     }
 }
