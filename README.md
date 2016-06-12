@@ -4,7 +4,7 @@ An extended Cafiine server mostly rewritten from scratch, handling the default W
 At the moment, it offers the following new functionality:
 - Support for encrypted, hash-signed and time-bombed game data packs files (s. section below).
 - Dump mode to dump any queried file automatically, into a separate directory dedicated for dumps.
-- Command line parameters to set port an network interface to listen on.
+- Command line parameters to set port and network interface to listen on.
 - Optimized console output.
 - Several bigger and smaller code and performance optimizations.
 
@@ -17,17 +17,17 @@ Besides supporting the classic method of a raw file structure directly stored in
 They have the following advantages:
 - They encrypt files and file names, thus making it harder for curious sneaky eyes to look into the mods. This does *not* mean that the mods are undecryptable; in fact, the encryption is very simple and easily reversable. It should be seen as a "script kiddie" filter.
 - The whole container stores a hash checked at load time to prevent nooby tampers.
-- They can be time-bombed to not work outside of a set time period. When a player tries to use a game pack outside its intended time period, no data will be sent back to Cafiine. This mostly crashes the Wii U, so make sure to tell players at which time the package can be used. Again, this is *not* safe, hence the source is public and the code handling the time can simply be removed.
+- They can be timebombed to not work outside a set time period. When a player tries to use a game pack outside its intended time period, empty file data will be sent back to Cafiine. This mostly crashes / freezes the Wii U, so make sure to tell players at which time the pack can be used (this might be handled more user-friendly in the future). Again, this is *not* safe, hence the source is public and the code handling the time can simply be removed.
 - They can be shared and managed as just one file without the need to pack / unpack them. 
 
 ## PackCreator Tool
-Game packs are created with the PackCreator tool. It accepts a parameter specifying the name of the file in which the pack will be stored (which will be forced to have the .csgp extension to be recognized by the server later on). Another parameter specifies the directory which contents the pack will store. This is a typical title ID directory as used in the original Cafiine server. Additionally, time-bomb dates can be set. A custom encryption key is automatically created.
+Game packs are created with the PackCreator tool. It accepts a parameter specifying the name of the file in which the pack will be stored (which will be forced to have the *.csgp extension to be recognized by the server later on). Another parameter specifies the directory which contents the pack will store. This is a typical title ID directory as used in the original Cafiine server. Additionally, timebomb dates can be set. A custom encryption key is automatically created.
 
 Some examples of calling the PackCreator tool:
 - `PackCreator /TARGET=D:\Cafiine\data\mk8.csgp /SOURCE=D:\Mods\00050000-1010ED00`
 
   This stores all the contents of `00050000-1010ED00` in an `mk8.csgp` file (including the folder itself to know the title ID).
-- `PackCreator /TARGET=D:\Cafiine\data\toadondrugs.csgp /SOURCE=D:\Mods\toady ROOTNAME=00050000-1010ED00`
+- `PackCreator /TARGET=D:\Cafiine\data\toadondrugs.csgp /SOURCE=D:\Mods\toady /ROOTNAME=00050000-1010ED00`
 
   This stores all the contents of the `toady` folder in a `toadondrugs.csgp` file, with the root folder's name becoming `00050000-1010ED00` (useful if you want to change a title ID on the fly).
 - `PackCreator /TARGET=mycoolmod SOURCE=D:\cafiine_old\cafiine_root\00050000-1010EC00 /MINDATE=12:00-11.06.2016`
@@ -44,9 +44,9 @@ If there are collisions between packs or with the raw file system having the sam
 - The packs are prioritized in alphabetical order (e.g. "aaatakethismod.csgp" has higher priority than "crapmod.csgp").
  
 ## Dumping Files
-This server does not store dumped files beside their "-request" file like the original server does, it stores them in the specified dump folder (being "dump" by default), recreating the folder structure there.
+This server does not store dumped files besides their "-request" file like the original server does, it stores them in the specified dump folder (being "dump" by default), recreating the folder structure there.
 
-If the server is started with the `/DUMPALL` parameter, every queried file will be dumped, basically recreating the game contents in the `dump\titleID` folder. If any `-request_slow` files are found in the data directory, they will still checked to initiate a slow file dump (useful for streamed files to workaround problems with Cafiine throwing up dumping them to quickly). Files on the Wii U are not replaced at all in this mode.
+If the server is started with the `/DUMPALL` parameter, every queried file will be dumped, basically recreating the game contents in the `dump\titleID` folder. If any `-request_slow` files are found in the data directory, they will cause a slow file dump for the corresponding file (useful for streamed files to workaround problems with Cafiine throwing up when dumping them to quickly). Files on the Wii U are not replaced at all in this mode.
 
 ## Optimized Console Output / Logging
 I like fancy text and made the console output a bit more colorful and changed a lot of the messages. When using game packs, replaced files are of course not shown to keep the modded file names secret (it still shows which files are queried).
