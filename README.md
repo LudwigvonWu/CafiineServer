@@ -1,15 +1,12 @@
 # CafiineServer
 An extended Cafiine server mostly rewritten from scratch, handling the default Wii U Cafiine clients, based on the original server by Chadderz.
 
-At the moment, it offers the following new functionality:
-- Support for encrypted, hash-signed and time-bombed game data packs files (s. section below).
+It offers the following new functionality:
+- Support for encrypted, hash-signed and timebombed game data pack files.
 - Dump mode to dump any queried file automatically, into a separate directory dedicated for dumps.
 - Command line parameters to set port and network interface to listen on.
-- Optimized console output.
+- Optimized console output and file logging.
 - Several bigger and smaller code and performance optimizations.
-
-The following features are planned:
-- Optimized file logging (at the moment, file logging is completely removed).
 
 ## Game Data Packs
 Besides supporting the classic method of a raw file structure directly stored in title ID directories under the root directory (like the original Cafiine server does), this server additionally supports so called game data packs. These are a containers of a custom file format (*.csgp), imaginable like a ZIP file, storing files and folders inside of them. Other than being a file, they are handled like the classic title ID folders, put into the Cafiine root / data folder.
@@ -37,16 +34,17 @@ Some examples of calling the PackCreator tool:
 
   The created pack `blub.csgp` makes itself invalid when being used after New Year's Eve 2016. Note how you can use parameters with `-` or no prefix.
 
-The packs are then put into the root / data directory of the Cafiine server, besides any possible classic raw title ID directories.
-
-If there are collisions between packs or with the raw file system having the same files multiple times, the following path is taken to resolve the collision:
+The packs are then put into the root / data directory of the Cafiine server, besides any possible classic raw title ID directories. If there are collisions between files appearing multiple times in packs or the raw file system, the following path is taken to resolve the collision:
 - The raw file system always has priority over packs (so you can still play around there before creating a pack).
 - The packs are prioritized in alphabetical order (e.g. "aaatakethismod.csgp" has higher priority than "crapmod.csgp").
  
 ## Dumping Files
-This server does not store dumped files besides their "-request" file like the original server does, it stores them in the specified dump folder (being "dump" by default), recreating the folder structure there.
+This server does not store dumped files besides their `-request` file in the data folder like the original server does, it stores them in the dump folder under their original path.
 
-If the server is started with the `/DUMPALL` parameter, every queried file will be dumped, basically recreating the game contents in the `dump\titleID` folder. If any `-request_slow` files are found in the data directory, they will cause a slow file dump for the corresponding file (useful for streamed files to workaround problems with Cafiine throwing up when dumping them to quickly). Files on the Wii U are not replaced at all in this mode.
+The following methods can be used to dump files:
+- The classic way: Create an empty file in the data directory, ending on `-request`. If a file without this postfix is queried, it will be stored in the dump directory under the same path. If you have problems dumping a file this way (e.g. the console randomly disconnects), use the `-request_slow` postfix, which will dump the file slower, but more safely.
+- The new hardcore way: Start the server with the `/DUMPALL` parameter. This will dump absolutely every file queried by the Cafiine client. Some files are known to throw up the client, you should exclude this file. Files are not replaced at all when running the server in this mode.
+- To exclude a file from the dump, just create an empty file in the dump folder with the same path and name of the file you want to block (if the server finds a file already in the dump directory, it skips dumping it again).
 
 ## Optimized Console Output / Logging
 I like fancy text and made the console output a bit more colorful and changed a lot of the messages. When using game packs, replaced files are of course not shown to keep the modded file names secret (it still shows which files are queried).
