@@ -215,7 +215,7 @@ namespace Syroot.CafiineServer
                     _writer.Write(0x0FFF00FF | (handle << 8));
                 }
                 else if (!File.Exists(dumpPath)
-                    && (File.Exists(fullPath + "-request") || (requestSlow == File.Exists(fullPath + "-request_slow"))))
+                    && (File.Exists(fullPath + "-request") || (requestSlow = File.Exists(fullPath + "-request_slow"))))
                 {
                     // We do not have a replacement file, but a single dump is requested for it. Reply to receive it.
                     Log(ConsoleColor.Magenta, "> Requesting single dump of '{0}' (slow={1})", path, requestSlow);
