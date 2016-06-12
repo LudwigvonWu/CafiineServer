@@ -51,4 +51,4 @@ If the server is started with the `/DUMPALL` parameter, every queried file will 
 ## Optimized Console Output / Logging
 I like fancy text and made the console output a bit more colorful and changed a lot of the messages. When using game packs, replaced files are of course not shown to keep the modded file names secret (it still shows which files are queried).
 
-Logging tries to store complete logs for a client, rather than a connection (not yet implemented). The log folder can be set when starting the server.
+File logging creates a new folder in the log directory each time a server is started, and client logs are created in there for each client, not each connection. This makes it easier to find problems a specific client reported in case you connect multiple Wii U's to the server. The `/NOLOGS` parameter disables any file logging (but console output will still be visible). The log directory can also be set with the `/LOGS` parameter.
