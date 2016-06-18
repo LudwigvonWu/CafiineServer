@@ -8,6 +8,10 @@ It offers the following new functionality:
 - Optimized console output and file logging.
 - Several bigger and smaller code and performance optimizations.
 
+## Note for testers
+
+This server looks into the `data` directory instead of `cafiine_root` by default! In case you want to keep all your stuff in `cafiine_root`, pass the `/DATA=cafiine_root` parameter to the server. It will tell you the data directory it looks in at the start.
+
 ## Game Data Packs
 Besides supporting the classic method of a raw file structure directly stored in title ID directories under the root directory (like the original Cafiine server does), this server additionally supports so called game data packs. These are a containers of a custom file format (*.csgp), imaginable like a ZIP file, storing files and folders inside of them. Other than being a file, they are handled like the classic title ID folders, put into the Cafiine root / data folder.
 
