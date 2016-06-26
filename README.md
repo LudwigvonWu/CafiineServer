@@ -1,5 +1,5 @@
 # CafiineServer
-An extended Cafiine server mostly rewritten from scratch, handling the default Wii U Cafiine clients, based on the original server by Chadderz.
+An extended Cafiine server mostly rewritten from scratch, handling the default Wii U Cafiine clients, based on the original server by MrRean.
 
 It offers the following new functionality:
 - Support for encrypted, hash-signed and timebombed game data pack files.
