@@ -1,7 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.Security.Cryptography;
-using Syroot.CafiineServer.Common.IO;
+using Syroot.IO;
 
 namespace Syroot.CafiineServer.PackCreator.Pack
 {

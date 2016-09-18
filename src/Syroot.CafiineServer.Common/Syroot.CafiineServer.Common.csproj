@@ -34,11 +34,6 @@
     <Reference Include="System" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="IO\BinaryDataFormats.cs" />
-    <Compile Include="IO\BinaryDataReader.cs" />
-    <Compile Include="IO\BinaryDataWriter.cs" />
-    <Compile Include="IO\ByteOrder.cs" />
-    <Compile Include="IO\SeekTask.cs" />
     <Compile Include="ParameterParser.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

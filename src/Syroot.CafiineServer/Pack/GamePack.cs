@@ -2,7 +2,7 @@
 using System.IO;
 using System.Linq;
 using System.Security.Cryptography;
-using Syroot.CafiineServer.Common.IO;
+using Syroot.IO;
 
 namespace Syroot.CafiineServer.Pack
 {
