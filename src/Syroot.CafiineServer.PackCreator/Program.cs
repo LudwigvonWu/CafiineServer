@@ -75,7 +75,7 @@ namespace Syroot.CafiineServer.PackCreator
             // Get the source directory which files will be included. Defaults to current directory.
             if (!arguments.TryGetValue("SOURCE", out _source))
             {
-                _source = Environment.CurrentDirectory;
+                _source = Directory.GetCurrentDirectory();
             }
 
             // Get the optional new root name.

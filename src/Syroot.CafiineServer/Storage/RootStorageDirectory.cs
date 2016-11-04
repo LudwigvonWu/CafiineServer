@@ -10,9 +10,9 @@ namespace Syroot.CafiineServer.Storage
     internal class RootStorageDirectory : StorageDirectory
     {
         // ---- MEMBERS ------------------------------------------------------------------------------------------------
-        
+
         private Dictionary<string, GamePack> _loadedGamePacks;
-        private object                       _loadedGamePacksMutex;
+        private object _loadedGamePacksMutex;
 
         // ---- CONSTRUCTORS & DESTRUCTOR ------------------------------------------------------------------------------
 

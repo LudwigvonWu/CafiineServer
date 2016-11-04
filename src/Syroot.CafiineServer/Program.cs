@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Net;
+using System.Threading.Tasks;
 using Syroot.CafiineServer.Common;
 
 namespace Syroot.CafiineServer
@@ -12,40 +13,41 @@ namespace Syroot.CafiineServer
     {
         // ---- MEMBERS ------------------------------------------------------------------------------------------------
 
-        private static int       _port;
+        private static int _port;
         private static IPAddress _ipAddress;
-        private static string    _dataPath;
-        private static string    _logsPath;
-        private static string    _dumpPath;
-        private static bool      _dumpAll;
-        private static bool      _enabledFileLogs;
+        private static string _dataPath;
+        private static string _logsPath;
+        private static string _dumpPath;
+        private static bool _dumpAll;
+        private static bool _enabledFileLogs;
 
         // ---- METHODS (PRIVATE) --------------------------------------------------------------------------------------
 
-        private static int Main(string[] args)
+        private static void Main(string[] args)
         {
-            try
+            // Wrap in an asynchronous context to prevent .NET standard 1.6 async methods to not end the program.
+            Task.Run(async () =>
             {
-                Dictionary<string, string> arguments = ParameterParser.ParseToDictionary(args);
-                ParseParameters(arguments);
-
-                // Check for requested help.
-                if (arguments.ContainsKey("?") || arguments.ContainsKey("HELP"))
+                try
                 {
-                    PrintHelp();
-                    return -1;
+                    Dictionary<string, string> arguments = ParameterParser.ParseToDictionary(args);
+                    ParseParameters(arguments);
+
+                    // Check for requested help.
+                    if (arguments.ContainsKey("?") || arguments.ContainsKey("HELP"))
+                    {
+                        PrintHelp();
+                    }
+                    // Create a server and make it listen for incoming connections.
+                    Server server = new Server(_ipAddress, _port, _dataPath, _dumpPath, _logsPath, _dumpAll,
+                            _enabledFileLogs);
+                    await server.Run();
                 }
-                // Create a server and make it listen for incoming connections.
-                Server server = new Server(_ipAddress, _port, _dataPath, _dumpPath, _logsPath, _dumpAll,
-                    _enabledFileLogs);
-                server.Run();
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine("Unexpected error: " + ex.Message);
-                return -1;
-            }
-            return 0;
+                catch (Exception ex)
+                {
+                    Console.WriteLine("Unexpected error: " + ex.Message);
+                }
+            }).Wait();
         }
 
         private static void PrintHelp()

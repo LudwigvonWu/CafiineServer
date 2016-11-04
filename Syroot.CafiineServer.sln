@@ -1,0 +1,39 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 14
+VisualStudioVersion = 14.0.25420.1
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{8DE0C68A-24A0-4376-91AE-64A743BD72FE}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{467DBE9B-ABA1-4F16-A058-6EA47E804510}"
+	ProjectSection(SolutionItems) = preProject
+		global.json = global.json
+	EndProjectSection
+EndProject
+Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "Syroot.CafiineServer", "src\Syroot.CafiineServer\Syroot.CafiineServer.xproj", "{1724F7F5-E495-4D15-A0FB-72ED4DCA56B1}"
+EndProject
+Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "Syroot.CafiineServer.Common", "src\Syroot.CafiineServer.Common\Syroot.CafiineServer.Common.xproj", "{769E8C2A-8F4E-4CC5-B0CE-B4EE697FD8E7}"
+EndProject
+Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "Syroot.CafiineServer.PackCreator", "src\Syroot.CafiineServer.PackCreator\Syroot.CafiineServer.PackCreator.xproj", "{BF8F5F02-0283-416F-A7A1-6748BBAE1367}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{1724F7F5-E495-4D15-A0FB-72ED4DCA56B1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1724F7F5-E495-4D15-A0FB-72ED4DCA56B1}.Release|Any CPU.Build.0 = Release|Any CPU
+		{769E8C2A-8F4E-4CC5-B0CE-B4EE697FD8E7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{769E8C2A-8F4E-4CC5-B0CE-B4EE697FD8E7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BF8F5F02-0283-416F-A7A1-6748BBAE1367}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BF8F5F02-0283-416F-A7A1-6748BBAE1367}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{1724F7F5-E495-4D15-A0FB-72ED4DCA56B1} = {8DE0C68A-24A0-4376-91AE-64A743BD72FE}
+		{769E8C2A-8F4E-4CC5-B0CE-B4EE697FD8E7} = {8DE0C68A-24A0-4376-91AE-64A743BD72FE}
+		{BF8F5F02-0283-416F-A7A1-6748BBAE1367} = {8DE0C68A-24A0-4376-91AE-64A743BD72FE}
+	EndGlobalSection
+EndGlobal

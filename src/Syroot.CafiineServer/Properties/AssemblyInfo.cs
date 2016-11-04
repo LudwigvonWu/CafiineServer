@@ -1,15 +1,11 @@
 ﻿using System.Reflection;
 using System.Runtime.InteropServices;
 
-[assembly: AssemblyTitle("Cafiine Server")]
-[assembly: AssemblyDescription("Syroot Cafiine Server")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("Syroot / Chadsoft")]
-[assembly: AssemblyProduct("Cafiine Server")]
-[assembly: AssemblyCopyright("Copyright © Syroot 2016 / ChadSoft 2014")]
+[assembly: AssemblyCompany("")]
+[assembly: AssemblyProduct("Syroot.CafiineServer")]
 [assembly: AssemblyTrademark("")]
-[assembly: AssemblyCulture("")]
-[assembly: AssemblyVersion("0.8.0.0")]
-[assembly: AssemblyFileVersion("0.8.0.0")]
+[assembly: AssemblyVersion("1.0.0")]
+
 [assembly: ComVisible(false)]
-[assembly: Guid("fc022709-becf-498f-9a2a-dc3543457b0d")]
+[assembly: Guid("1724f7f5-e495-4d15-a0fb-72ed4dca56b1")]

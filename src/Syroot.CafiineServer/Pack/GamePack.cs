@@ -63,7 +63,7 @@ namespace Syroot.CafiineServer.Pack
                 }
 
                 // Read in the keys and generate the crypto provider.
-                _cryptoAlgorithm = new AesCryptoServiceProvider();
+                _cryptoAlgorithm = Aes.Create();
                 _cryptoAlgorithm.Key = reader.ReadBytes(reader.ReadByte());
                 _cryptoAlgorithm.IV = reader.ReadBytes(reader.ReadByte());
 

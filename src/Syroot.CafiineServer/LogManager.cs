@@ -10,10 +10,10 @@ namespace Syroot.CafiineServer
     internal class LogManager
     {
         // ---- MEMBERS ------------------------------------------------------------------------------------------------
-        
-        private object                               _consoleMutex;
+
+        private object _consoleMutex;
         private ConcurrentDictionary<string, object> _fileMutexes;
-        
+
         // ---- CONSTRUCTORS & DESTRUCTOR ------------------------------------------------------------------------------
 
         /// <summary>
@@ -21,6 +21,7 @@ namespace Syroot.CafiineServer
         /// directory to store log files in.
         /// </summary>
         /// <param name="logsDirectory">The directory in which a session folder will be created to store logs in.</param>
+        /// <param name="enableFileLogs">Determines whether logs will be written to file.</param>
         internal LogManager(string logsDirectory, bool enableFileLogs)
         {
             EnableFileLogs = enableFileLogs;
@@ -37,7 +38,7 @@ namespace Syroot.CafiineServer
         }
 
         // ---- PROPERTIES ---------------------------------------------------------------------------------------------
-        
+
         /// <summary>
         /// Gets or sets a value indicating whether file logs will be written.
         /// </summary>
@@ -59,23 +60,22 @@ namespace Syroot.CafiineServer
         // ---- METHODS (INTERNAL) -------------------------------------------------------------------------------------
 
         /// <summary>
-        /// Writes the formatted message coming from the specified source into the console with the given color and into
-        /// a corresponding log file.
+        /// Writes the message coming from the specified source into the console with the given color and into a
+        /// corresponding log file.
         /// </summary>
         /// <param name="color">The color to use for console output.</param>
         /// <param name="source">The source which sent this message.</param>
-        /// <param name="format">The format of the message.</param>
-        /// <param name="args">The arguments to format the message with.</param>
-        internal void Write(ConsoleColor color, string source, string format, params object[] args)
+        /// <param name="message">The message.</param>
+        internal void Write(ConsoleColor color, string source, string message)
         {
-            string message = String.Format(format, args) + Environment.NewLine;
+            message += Environment.NewLine;
 
             // Write the message to the console.
             lock (_consoleMutex)
             {
                 ConsoleColor lastColor = Console.ForegroundColor;
                 Console.ForegroundColor = color;
-                Console.Write("[{0}] {1}", source, message);
+                Console.Write($"[{source}] {message}");
                 Console.ForegroundColor = lastColor;
             }
 
@@ -85,10 +85,23 @@ namespace Syroot.CafiineServer
                 object fileMutex = _fileMutexes.GetOrAdd(source, new object());
                 lock (fileMutex)
                 {
-                    message = String.Format("[{0}] {1}", DateTime.Now.ToString("dd.MM.yyyy HH:mm:ss.fff"), message);
+                    message = $"[{DateTime.Now.ToString("dd.MM.yyyy HH: mm:ss.fff")}] {message}";
                     File.AppendAllText(Path.Combine(SessionDirectory, source) + ".txt", message);
                 }
             }
+        }
+
+        /// <summary>
+        /// Writes the formatted message coming from the specified source into the console with the given color and into
+        /// a corresponding log file.
+        /// </summary>
+        /// <param name="color">The color to use for console output.</param>
+        /// <param name="source">The source which sent this message.</param>
+        /// <param name="format">The format of the message.</param>
+        /// <param name="args">The arguments to format the message with.</param>
+        internal void Write(ConsoleColor color, string source, string format, params object[] args)
+        {
+            Write(color, source, String.Format(format, args));
         }
     }
 }

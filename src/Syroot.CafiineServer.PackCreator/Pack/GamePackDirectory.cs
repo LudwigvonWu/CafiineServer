@@ -17,6 +17,7 @@ namespace Syroot.CafiineServer.PackCreator.Pack
         /// </summary>
         /// <param name="cryptoTransform">The encryptor to encrypt the name of the directory and contents with.</param>
         /// <param name="directory">The directory which contents will be represented.</param>
+        /// <param name="newName">The optional new name of the directory to virtually rename it.</param>
         internal GamePackDirectory(ICryptoTransform cryptoTransform, DirectoryInfo directory, string newName = null)
         {
             // Use the new name if specified, and store it encrypted.

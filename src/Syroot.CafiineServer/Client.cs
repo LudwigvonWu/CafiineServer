@@ -18,20 +18,16 @@ namespace Syroot.CafiineServer
     internal class Client
     {
         // ---- MEMBERS ------------------------------------------------------------------------------------------------
-
-        private static int    _clientCounter;
-        private static object _logMutex = new object();
-
-        private Server    _server;
+        
+        private Server _server;
         private TcpClient _tcpClient;
-        private int       _clientID;
-        private string    _logPrefix;
+        private string _logPrefix;
 
-        private BinaryDataReader            _reader;
-        private BinaryDataWriter            _writer;
-        private uint[]                      _titleIDParts;
-        private string                      _titleID;
-        private Stream[]                    _fileStreams;
+        private BinaryDataReader _reader;
+        private BinaryDataWriter _writer;
+        private uint[] _titleIDParts;
+        private string _titleID;
+        private Stream[] _fileStreams;
         private Dictionary<int, FileStream> _dumpStreams;
 
         // ---- CONSTRUCTORS & DESTRUCTOR ------------------------------------------------------------------------------
@@ -46,9 +42,7 @@ namespace Syroot.CafiineServer
         {
             _server = server;
             _tcpClient = tcpClient;
-            _clientCounter++;
-            _clientID = _clientCounter;
-            _logPrefix = String.Format("{0}", (_tcpClient.Client.RemoteEndPoint as IPEndPoint).Address, _clientID);
+            _logPrefix = (_tcpClient.Client.RemoteEndPoint as IPEndPoint).Address.ToString();
 
             _fileStreams = new Stream[256];
             _dumpStreams = new Dictionary<int, FileStream>();
@@ -82,23 +76,22 @@ namespace Syroot.CafiineServer
 
                     // Get the requested title ID.
                     _titleIDParts = _reader.ReadUInt32s(4);
-                    _titleID = String.Format("{0:X8}-{1:X8}", _titleIDParts[0], _titleIDParts[1]);
-                    _server.Log.Write(ConsoleColor.White, _logPrefix, "Client connected (endpoint={0}, title={1})",
-                        _tcpClient.Client.RemoteEndPoint, _titleID);
+                    _titleID = $"{_titleIDParts[0]:X8}-{_titleIDParts[1]:X8}";
+                    _server.Log.Write(ConsoleColor.Gray, _logPrefix,
+                        $"Client connected (endpoint={_tcpClient.Client.RemoteEndPoint}, title={_titleID})");
 
                     // Tell the client whether we want to handle the title or not.
                     if (_server.DumpAll || _server.Storage.GetDirectory(_titleID) != null)
                     {
                         // Send back that we are interested in this title.  
-                        _server.Log.Write(ConsoleColor.White, _logPrefix, "> {0} for title {1}.",
-                            _server.DumpAll ? "Enabling dump" : "Data found", _titleID);
+                        _server.Log.Write(ConsoleColor.White, _logPrefix,
+                            $"> {(_server.DumpAll ? "Enabling dump" : "Data found")} for title {_titleID}.");
                         _writer.Write((byte)ClientCommand.Special);
                     }
                     else
                     {
                         // No data was found for the requested title.
-                        _server.Log.Write(ConsoleColor.Gray, _logPrefix, "> No data available for title {0}.",
-                            _titleID);
+                        _server.Log.Write(ConsoleColor.Gray, _logPrefix, $"> No data available for title {_titleID}.");
                         _writer.Write((byte)ClientCommand.Normal);
                         return;
                     }
@@ -126,11 +119,11 @@ namespace Syroot.CafiineServer
             }
             catch (IOException ex)
             {
-                _server.Log.Write(ConsoleColor.DarkRed, _logPrefix, "Communication issue ({0})", ex.Message);
+                _server.Log.Write(ConsoleColor.DarkRed, _logPrefix, $"Communication issue ({ex.Message})");
             }
             catch (Exception ex)
             {
-                _server.Log.Write(ConsoleColor.Red, _logPrefix, "Unexpected error ({0})", ex.Message);
+                _server.Log.Write(ConsoleColor.Red, _logPrefix, $"Unexpected error ({ex.Message})");
             }
             finally
             {
@@ -147,7 +140,7 @@ namespace Syroot.CafiineServer
             }
             _server.Log.Write(ConsoleColor.DarkRed, _logPrefix, "Connection dismissed.");
         }
-        
+
         private void HandleCommandOpen()
         {
             // Read the message parameters.
@@ -158,8 +151,8 @@ namespace Syroot.CafiineServer
 
             // Get the server path to the requested file.
             string fullPath = GetServerPath(path);
-            _server.Log.Write(ConsoleColor.Cyan, _logPrefix, "Querying '{0}' (mode={1})", fullPath, mode.ToUpper());
-            
+            _server.Log.Write(ConsoleColor.Cyan, _logPrefix, $"Querying '{fullPath}' (mode={mode.ToUpper()})");
+
             // Check what should be done with the queried path.
             bool requestSlow = false;
             StorageFile file;
@@ -168,8 +161,8 @@ namespace Syroot.CafiineServer
                 && !File.Exists(_server.GetDumpPath(_titleID, path)))
             {
                 // The server is in dump mode or a single dump has been requested, and the dump does not exist yet.
-                _server.Log.Write(ConsoleColor.Magenta, _logPrefix, "> Requesting dump of '{0}' (slow={1})", path,
-                    requestSlow);
+                _server.Log.Write(ConsoleColor.Magenta, _logPrefix,
+                    $"> Requesting dump of '{path}' (slow={requestSlow})");
                 _writer.Write(requestSlow ? (byte)ClientCommand.RequestSlow : (byte)ClientCommand.Request);
             }
             else if ((file = _server.Storage.GetFile(_titleID + path)) != null)
@@ -196,8 +189,8 @@ namespace Syroot.CafiineServer
                 // Open a new file stream on the replacement file under this handle.
                 if (file.GetType() == typeof(RawStorageFile))
                 {
-                    _server.Log.Write(ConsoleColor.Green, _logPrefix, "> Replacing '{0}' (mode={1}, handle={2})", path,
-                        mode.ToUpper(), handle);
+                    _server.Log.Write(ConsoleColor.Green, _logPrefix,
+                        $"> Replacing '{path}' (mode={mode.ToUpper()}, handle={handle})");
                 }
                 _fileStreams[handle] = file.GetStream();
                 // Send back that we have a replacement file with the found handle.
@@ -238,8 +231,8 @@ namespace Syroot.CafiineServer
             if (_dumpStreams.TryGetValue(fileDescriptor, out dumpStream))
             {
                 // Write the received file data into the file stream.
-                _server.Log.Write(ConsoleColor.Magenta, _logPrefix, "Dumping '{0}' ({1} kB)",
-                    Path.GetFileName(dumpStream.Name), size / 1024);
+                _server.Log.Write(ConsoleColor.Magenta, _logPrefix,
+                    $"Dumping '{Path.GetFileName(dumpStream.Name)}' ({size / 1024} kB)");
                 dumpStream.Write(fileData, 0, size);
             }
 
@@ -262,7 +255,7 @@ namespace Syroot.CafiineServer
                 if (fileStream == null)
                 {
                     // The file could not be read because it was not opened before.
-                    _server.Log.Write(ConsoleColor.Red, _logPrefix, "Cannot read non-open file (handle={0})", handle);
+                    _server.Log.Write(ConsoleColor.Red, _logPrefix, $"Cannot read non-open file (handle={handle})");
                     _writer.Write((byte)ClientCommand.Special);
                     _writer.Write(-19);
                     _writer.Write(0);
@@ -302,7 +295,7 @@ namespace Syroot.CafiineServer
                 if (fileStream == null)
                 {
                     // The file could not be closed because it was never open.
-                    _server.Log.Write(ConsoleColor.Red, _logPrefix, "Cannot close non-open file (handle={0})", handle);
+                    _server.Log.Write(ConsoleColor.Red, _logPrefix, $"Cannot close non-open file (handle={handle})");
                     _writer.Write((byte)ClientCommand.Special);
                     _writer.Write(-38);
                 }
@@ -311,7 +304,7 @@ namespace Syroot.CafiineServer
                     // Close the requested file and clear the slot in the file handle array.
                     if (fileStream.GetType() == typeof(FileStream))
                     {
-                        _server.Log.Write(ConsoleColor.Gray, _logPrefix, "Closing file (handle={0})", handle);
+                        _server.Log.Write(ConsoleColor.Gray, _logPrefix, $"Closing file (handle={handle})");
                     }
                     fileStream.Dispose();
                     _fileStreams[handle] = null;
@@ -329,8 +322,8 @@ namespace Syroot.CafiineServer
                     // Close the stream for dumping the file and remove it from the request list.
                     fileStream.Dispose();
                     _dumpStreams.Remove(fileDescriptor);
-                    _server.Log.Write(ConsoleColor.Magenta, _logPrefix, "Completed dumping '{0}'",
-                        Path.GetFileName(fileStream.Name));
+                    _server.Log.Write(ConsoleColor.Magenta, _logPrefix,
+                        $"Completed dumping '{Path.GetFileName(fileStream.Name)}'");
                 }
                 // Send a response that we could finish the dump successfully.
                 _writer.Write((byte)ClientCommand.Normal);
@@ -351,7 +344,7 @@ namespace Syroot.CafiineServer
                 if (fileStream == null)
                 {
                     // The file could not be seeked in because it is not open.
-                    _server.Log.Write(ConsoleColor.Red, _logPrefix, "Cannot seek non-open file (handle={0})", handle);
+                    _server.Log.Write(ConsoleColor.Red, _logPrefix, $"Cannot seek non-open file (handle={handle})");
                     _writer.Write((byte)ClientCommand.Special);
                     _writer.Write(-38);
                 }
@@ -383,8 +376,8 @@ namespace Syroot.CafiineServer
                 if (fileStream == null)
                 {
                     // The information could not be retrieved because the file is not open.
-                    _server.Log.Write(ConsoleColor.Red, _logPrefix, "Cannot retrieve non-open file info (handle={0})",
-                        handle);
+                    _server.Log.Write(ConsoleColor.Red, _logPrefix,
+                        $"Cannot retrieve non-open file info (handle={handle})");
                     _writer.Write((byte)ClientCommand.Special);
                     _writer.Write(-38);
                     _writer.Write(0);
@@ -424,8 +417,8 @@ namespace Syroot.CafiineServer
                 if (fileStream == null)
                 {
                     // The information cannot be retrieved as the file is not open.
-                    _server.Log.Write(ConsoleColor.Red, _logPrefix, "Cannot retrieve EOF of non-open file (handle={0})",
-                        handle);
+                    _server.Log.Write(ConsoleColor.Red, _logPrefix,
+                        $"Cannot retrieve EOF of non-open file (handle={handle})");
                     _writer.Write((byte)ClientCommand.Special);
                     _writer.Write(-38);
                 }
@@ -455,8 +448,8 @@ namespace Syroot.CafiineServer
                 if (fileStream == null)
                 {
                     // The position cannot be retrieved as the file is not open.
-                    _server.Log.Write(ConsoleColor.Red, _logPrefix, "Cannot get position of non-open file (handle={0})",
-                        handle);
+                    _server.Log.Write(ConsoleColor.Red, _logPrefix,
+                        $"Cannot get position of non-open file (handle={handle})");
                     _writer.Write((byte)ClientCommand.Special);
                     _writer.Write(-38);
                     _writer.Write(0);
@@ -481,7 +474,7 @@ namespace Syroot.CafiineServer
             int value1 = _reader.ReadInt32();
             int value2 = _reader.ReadInt32();
 
-            _server.Log.Write(ConsoleColor.Gray, _logPrefix, "Pinged (value1={0}, value2={1})");
+            _server.Log.Write(ConsoleColor.Gray, _logPrefix, $"Pinged (value1={value1}, value2={value2})");
         }
 
         private string GetServerPath(string path)
@@ -489,26 +482,26 @@ namespace Syroot.CafiineServer
             path = path.TrimStart('/').Replace('/', Path.DirectorySeparatorChar);
             return Path.Combine(_server.DataDirectory, _titleID, path);
         }
-        
+
         // ---- ENUMERATIONS -------------------------------------------------------------------------------------------
 
         private enum ClientCommand : byte
         {
-            Open        = 0x00,
-            Read        = 0x01,
-            Close       = 0x02,
-            OK          = 0x03,
-            SetPos      = 0x04,
-            StatFile    = 0x05,
-            Eof         = 0x06,
-            GetPos      = 0x07,
-            Request     = 0x08,
+            Open = 0x00,
+            Read = 0x01,
+            Close = 0x02,
+            OK = 0x03,
+            SetPos = 0x04,
+            StatFile = 0x05,
+            Eof = 0x06,
+            GetPos = 0x07,
+            Request = 0x08,
             RequestSlow = 0x09,
-            DumpCreate  = 0x0A,
-            Dump        = 0x0B,
-            Ping        = 0x0C,
-            Special     = 0xFE,
-            Normal      = 0xFF
+            DumpCreate = 0x0A,
+            Dump = 0x0B,
+            Ping = 0x0C,
+            Special = 0xFE,
+            Normal = 0xFF
         }
     }
 }

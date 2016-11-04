@@ -1,0 +1,24 @@
+﻿{
+    "authors": [ "Syroot" ],
+    "copyright": "WTFPL",
+    "description": "Common Wii U Cafiine Server tools.",
+    "language": "en-US",
+    "title": "CafiineServer Common",
+    "version": "1.0.0-*",
+
+    "frameworks": {
+        "net45": {},
+        "netstandard1.6": {
+            "dependencies": {
+                "NETStandard.Library": "1.6.0"
+            },
+            "imports": "dnxcore50"
+        }
+    },
+
+    "buildOptions": {
+        "debugType": "portable",
+        "optimize": true,
+        "xmlDoc": true
+    }
+}

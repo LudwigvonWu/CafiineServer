@@ -24,7 +24,6 @@ namespace Syroot.CafiineServer.PackCreator.Pack
         /// all child directories and files in the provided root directory.
         /// </summary>
         /// <param name="fileName">The name of the file to save the game pack under.</param>
-        /// <param name="key">The key to encrypt the data with.</param>
         /// <param name="directory">The root directory which contents will be included.</param>
         /// <param name="rootName">The name under which the root directory will be stored.</param>
         /// <param name="validFrom">The date and time at which the package starts to be usable.</param>
@@ -35,7 +34,7 @@ namespace Syroot.CafiineServer.PackCreator.Pack
             fileName = Path.ChangeExtension(fileName, FileExtension);
 
             // Generate a new AES encryption key and IV to encrypt with.
-            AesCryptoServiceProvider cryptoProvider = new AesCryptoServiceProvider();
+            Aes cryptoProvider = Aes.Create();
             ICryptoTransform cryptoTransform = cryptoProvider.CreateEncryptor();
 
             // Create the root directory structure.

@@ -14,6 +14,7 @@ namespace Syroot.CafiineServer.IO
         /// structure.
         /// </summary>
         /// <param name="writer">The extended <see cref="BinaryDataWriter"/>.</param>
+        /// <param name="fsStat">The <see cref="FSStat"/> instance to write.</param>
         /// <returns>The <see cref="FSStat"/> to write the current stream.</returns>
         internal static void Write(this BinaryDataWriter writer, FSStat fsStat)
         {

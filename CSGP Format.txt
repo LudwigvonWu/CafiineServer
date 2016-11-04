@@ -1,0 +1,25 @@
+GamePack
+- stringraw       magic     // "CSGP"
+- long            flags     // Unused yet.
+- byte[16]        md5hash   // for the whole file contents after this
+- long            validFrom
+- long            validTo
+- byte            keyLength
+- byte[keyLength] key       // to decrypt the directory names / file names / file data
+- byte            ivLength
+- byte[ivLength]  iv        // to decrypt the directory names / file names / file data
+
+GamePackDirectory
+- short                             nameLength // The length of the encrypted name
+- byte[nameLength]                  name       // The encrypted name. The first directory must always have the title ID as a name, or it doesnt make sense
+- int                               fileCount
+- GamePackFile[fileCount]           files
+- int                               directoryCount
+- GamePackDirectory[directoryCount] directories
+
+GamePackFile
+- short            nameLength    // The length of the encrypted name
+- byte[nameLength] name          // The encrypted name
+- int              size          // original size of the file
+- long             offset        // (points to AES encrypted byte array, relative to the end of the last Directory header)
+- int              encryptedSize // size of the decrypted data

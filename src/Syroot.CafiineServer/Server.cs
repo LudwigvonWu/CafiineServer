@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.IO;
 using System.Net;
 using System.Net.Sockets;
+using System.Reflection;
+using System.Threading.Tasks;
 using Syroot.CafiineServer.Storage;
 
 namespace Syroot.CafiineServer
@@ -124,27 +126,36 @@ namespace Syroot.CafiineServer
         // ---- METHODS (INTERNAL) -------------------------------------------------------------------------------------
 
         /// <summary>
-        /// Starts listening for and dispatching Cafiine client connections into listening threads. This is a blocking
-        /// call.
+        /// Starts listening for and dispatching Cafiine client connections into listening threads.
         /// </summary>
-        internal void Run()
+        internal async Task Run()
         {
             // Create the listener which waits for incoming connections.
             TcpListener listener = new TcpListener(IPAddress, Port);
             listener.Start();
-            Log.Write(ConsoleColor.Yellow, "SERVER", "Cafiine server started{0}.", DumpAll ? " in dump mode" : null);
-            Log.Write(ConsoleColor.Yellow, "SERVER", "Server IP     : {0} (on port {1})",
-                String.Join(", ", GetLocalIPs()), Port);
-            Log.Write(ConsoleColor.Yellow, "SERVER", "Data directory: {0}", Path.GetFullPath(DataDirectory));
-            Log.Write(ConsoleColor.Yellow, "SERVER", "Dump directory: {0}", Path.GetFullPath(DumpDirectory));
-            Log.Write(ConsoleColor.Yellow, "SERVER", "Logs directory: {0}", Log.EnableFileLogs
-                ? Path.GetFullPath(LogsDirectory) : "disabled");
-            Log.Write(ConsoleColor.DarkYellow, "SERVER", "Listening for new connections...");
+
+            string applicationVersion = Assembly.GetEntryAssembly().GetName().Version.ToString();
+            Log.Write(ConsoleColor.Yellow, "SERVER",
+                $"Cafiine Server {applicationVersion} started{(DumpAll ? " in dump mode" : null)}.");
+
+            List<IPAddress> localIPs = await GetLocalIPs();
+            Log.Write(ConsoleColor.Yellow, "SERVER",
+                $"Server IP{(localIPs.Count == 1 ? " " : "s")}    : {String.Join(", ", localIPs)} (on port {Port})");
+
+            Log.Write(ConsoleColor.Yellow, "SERVER",
+                $"Data directory: {Path.GetFullPath(DataDirectory)}");
+            Log.Write(ConsoleColor.Yellow, "SERVER",
+                $"Dump directory: {Path.GetFullPath(DumpDirectory)}");
+            Log.Write(ConsoleColor.Yellow, "SERVER",
+                $"Logs directory: {(Log.EnableFileLogs ? Path.GetFullPath(LogsDirectory) : "disabled")}");
+
+            Log.Write(ConsoleColor.DarkYellow, "SERVER",
+                "Listening for new connections...");
 
             // Repeatedly wait for new incoming connections.
             while (true)
             {
-                Client client = new Client(this, listener.AcceptTcpClient());
+                Client client = new Client(this, await listener.AcceptTcpClientAsync());
                 client.HandleAsync();
             }
         }
@@ -152,6 +163,7 @@ namespace Syroot.CafiineServer
         /// <summary>
         /// Returns the path a dumped file with the given path would have.
         /// </summary>
+        /// <param name="titleID">The title ID of the dumped game.</param>
         /// <param name="path">The path to transform into a dump path.</param>
         /// <returns>The path under which a dump file would be located.</returns>
         internal string GetDumpPath(string titleID, string path)
@@ -177,18 +189,20 @@ namespace Syroot.CafiineServer
         }
 
         // ---- METHODS (PRIVATE) --------------------------------------------------------------------------------------
-
-        private IEnumerable<IPAddress> GetLocalIPs()
+        
+        private async Task<List<IPAddress>> GetLocalIPs()
         {
             // Return the IPv4 interface IPs on this machine.
-            IPHostEntry host = Dns.GetHostEntry(Dns.GetHostName());
+            List<IPAddress> ipAddresses = new List<IPAddress>();
+            IPHostEntry host = await Dns.GetHostEntryAsync(Dns.GetHostName());
             foreach (IPAddress ipAddress in host.AddressList)
             {
                 if (ipAddress.AddressFamily == AddressFamily.InterNetwork && !IPAddress.IsLoopback(ipAddress))
                 {
-                    yield return ipAddress;
+                    ipAddresses.Add(ipAddress);
                 }
             }
+            return ipAddresses;
         }
     }
 }

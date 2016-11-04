@@ -10,7 +10,7 @@ namespace Syroot.CafiineServer.PackCreator.Pack
     internal static class ICryptoTransformExtensions
     {
         // ---- METHODS (INTERNAL) -------------------------------------------------------------------------------------
-        
+
         /// <summary>
         /// Encrypts the given text and returns the encrypted data.
         /// </summary>

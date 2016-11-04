@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "Syroot.CafiineServer": {
+      "commandName": "Project",
+      "workingDirectory": "D:\\Archive\\Hacking\\Wii U\\Cafiine Server"
+    }
+  }
+}
