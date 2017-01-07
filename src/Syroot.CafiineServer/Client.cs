@@ -157,7 +157,7 @@ namespace Syroot.CafiineServer
             bool requestSlow = false;
             StorageFile file;
             if ((_server.DumpAll
-                || File.Exists(fullPath + "-request") || (requestSlow = File.Exists(fullPath + "request_slow")))
+                || File.Exists(fullPath + "-request") || (requestSlow = File.Exists(fullPath + "-request_slow")))
                 && !File.Exists(_server.GetDumpPath(_titleID, path)))
             {
                 // The server is in dump mode or a single dump has been requested, and the dump does not exist yet.
