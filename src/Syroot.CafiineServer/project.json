@@ -5,18 +5,11 @@
     "language": "en-US",
     "name": "CafiineServer",
     "title": "CafiineServer",
-    "version": "1.0.0-*",
+    "version": "1.0.1-*",
     
     "frameworks": {
-        "net45": {
-            "buildOptions": {
-                "define": [ "NET_45" ]
-            }
-        },
+        "net45": {},
         "netcoreapp1.0": {
-            "buildOptions": {
-                "define": [ "NET_STANDARD_16" ]
-            },
             "dependencies": {
                 "Microsoft.NETCore.App": {
                     "version": "1.0.1"
