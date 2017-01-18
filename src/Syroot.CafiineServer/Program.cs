@@ -70,9 +70,9 @@ namespace Syroot.CafiineServer
             Console.WriteLine("                 	to 'logs'.");
             Console.WriteLine("        DUMPALL  	When specified, the server dumps any file queried by the client.");
             Console.WriteLine("                 	Files will not be replaced even if available.");
-            Console.WriteLine("        DUMPALLSLOW  When specified, the server dumps any file queried by the client.");
-            Console.WriteLine("                 	Slow mode will be used for better stability.");
-            Console.WriteLine("                     Files will not be replaced even if available.");
+            Console.WriteLine("        DUMPALLSLOW	When specified, the server dumps any file queried by the client.");
+            Console.WriteLine("                 	Slow mode will be used for better stability. Files will not be ");
+            Console.WriteLine("                 	replaced even if available.");
             Console.WriteLine("        NOLOGS   	When specified, no file logs will be written (but console output");
             Console.WriteLine("                 	is still visible).");
         }

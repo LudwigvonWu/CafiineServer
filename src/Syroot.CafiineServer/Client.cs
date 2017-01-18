@@ -172,7 +172,7 @@ namespace Syroot.CafiineServer
                 || File.Exists(fullPath + "-request") || (requestSlow = File.Exists(fullPath + "-request_slow")))
                 && !File.Exists(_server.GetDumpPath(_titleID, path)))
             {
-                //The server is in (slow) dump mode or a single dump has been requested, and the dump does not exist yet.
+                // Server is in (slow) dump mode or a single dump has been requested, and the dump does not exist yet.
                 requestSlow = _server.DumpAllSlow ? true : requestSlow;
                 _server.Log.Write(ConsoleColor.Magenta, _logPrefix,
                     $"> Requesting dump of '{path}' (slow={requestSlow})");
