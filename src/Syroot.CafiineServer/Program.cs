@@ -40,8 +40,8 @@ namespace Syroot.CafiineServer
                         PrintHelp();
                     }
                     // Create a server and make it listen for incoming connections.
-                    Server server = new Server(_ipAddress, _port, _dataPath, _dumpPath, _logsPath, _dumpAll, _dumpAllSlow,
-                            _enabledFileLogs);
+                    Server server = new Server(_ipAddress, _port, _dataPath, _dumpPath, _logsPath, _dumpAll, 
+                        _dumpAllSlow, _enabledFileLogs);
                     await server.Run();
                 }
                 catch (Exception ex)
@@ -70,8 +70,9 @@ namespace Syroot.CafiineServer
             Console.WriteLine("                 	to 'logs'.");
             Console.WriteLine("        DUMPALL  	When specified, the server dumps any file queried by the client.");
             Console.WriteLine("                 	Files will not be replaced even if available.");
-            Console.WriteLine("        DUMPALLSLOW  When specified, the server dumps any file queried by the client in slow mode.");
-            Console.WriteLine("                 	Files will not be replaced even if available.");
+            Console.WriteLine("        DUMPALLSLOW  When specified, the server dumps any file queried by the client.");
+            Console.WriteLine("                 	Slow mode will be used for better stability.");
+            Console.WriteLine("                     Files will not be replaced even if available.");
             Console.WriteLine("        NOLOGS   	When specified, no file logs will be written (but console output");
             Console.WriteLine("                 	is still visible).");
         }

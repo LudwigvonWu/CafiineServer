@@ -28,7 +28,7 @@ namespace Syroot.CafiineServer
         /// <param name="dumpDirectory">The directory in which dumped files will be stored.</param>
         /// <param name="logsDirectory">The log directory into which log files will be written.</param>
         /// <param name="dumpAll">Dump every requested file instead of replacing them.</param>
-		/// <param name="dumpAllSlow">Slowly dump every requested file instead of replacing them.</param>
+        /// <param name="dumpAllSlow">Slowly dump every requested file instead of replacing them.</param>
         /// <param name="enableFileLogs"><c>true</c> to enable file logging.</param>
         internal Server(IPAddress ipAddress, int port, string dataDirectory, string dumpDirectory, string logsDirectory,
             bool dumpAll, bool dumpAllSlow, bool enableFileLogs)
@@ -146,8 +146,21 @@ namespace Syroot.CafiineServer
             listener.Start();
 
             string applicationVersion = Assembly.GetEntryAssembly().GetName().Version.ToString();
+            string message;
+            if (DumpAll)
+            {
+                message = " in dump mode";
+            }
+            else if (_server.DumpAllSlow)
+            {
+                message = " in slow dump mode";
+            }
+            else
+            {
+                message = null;
+            }
             Log.Write(ConsoleColor.Yellow, "SERVER",
-                $"Cafiine Server {applicationVersion} started{(DumpAll ? " in dump mode" : null)}{(DumpAllSlow ? " in slow dump mode" : null)}.");
+                $"Cafiine Server {applicationVersion} started{message}.");
 
             List<IPAddress> localIPs = await GetLocalIPs();
             Log.Write(ConsoleColor.Yellow, "SERVER",
