@@ -28,9 +28,10 @@ namespace Syroot.CafiineServer
         /// <param name="dumpDirectory">The directory in which dumped files will be stored.</param>
         /// <param name="logsDirectory">The log directory into which log files will be written.</param>
         /// <param name="dumpAll">Dump every requested file instead of replacing them.</param>
+		/// <param name="dumpAllSlow">Slowly dump every requested file instead of replacing them.</param>
         /// <param name="enableFileLogs"><c>true</c> to enable file logging.</param>
         internal Server(IPAddress ipAddress, int port, string dataDirectory, string dumpDirectory, string logsDirectory,
-            bool dumpAll, bool enableFileLogs)
+            bool dumpAll, bool dumpAllSlow, bool enableFileLogs)
         {
             IPAddress = ipAddress;
             Port = port;
@@ -38,6 +39,7 @@ namespace Syroot.CafiineServer
             DumpDirectory = dumpDirectory;
             LogsDirectory = logsDirectory;
             DumpAll = dumpAll;
+            DumpAllSlow = dumpAllSlow;
 
             // Initialize the storage system and log manager.
             Storage = new StorageSystem(DataDirectory);
@@ -106,6 +108,15 @@ namespace Syroot.CafiineServer
         }
 
         /// <summary>
+        /// Gets or sets a value indicating whether the server slowly dumps all queried files rather than replacing files.
+        /// </summary>
+        internal bool DumpAllSlow
+        {
+            get;
+            private set;
+        }
+
+        /// <summary>
         /// Gets the <see cref="StorageSystem"/> over which all file reads have to go.
         /// </summary>
         internal StorageSystem Storage
@@ -136,7 +147,7 @@ namespace Syroot.CafiineServer
 
             string applicationVersion = Assembly.GetEntryAssembly().GetName().Version.ToString();
             Log.Write(ConsoleColor.Yellow, "SERVER",
-                $"Cafiine Server {applicationVersion} started{(DumpAll ? " in dump mode" : null)}.");
+                $"Cafiine Server {applicationVersion} started{(DumpAll ? " in dump mode" : null)}{(DumpAllSlow ? " in slow dump mode" : null)}.");
 
             List<IPAddress> localIPs = await GetLocalIPs();
             Log.Write(ConsoleColor.Yellow, "SERVER",
@@ -189,7 +200,7 @@ namespace Syroot.CafiineServer
         }
 
         // ---- METHODS (PRIVATE) --------------------------------------------------------------------------------------
-        
+
         private async Task<List<IPAddress>> GetLocalIPs()
         {
             // Return the IPv4 interface IPs on this machine.

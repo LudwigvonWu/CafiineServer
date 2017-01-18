@@ -19,6 +19,7 @@ namespace Syroot.CafiineServer
         private static string _logsPath;
         private static string _dumpPath;
         private static bool _dumpAll;
+        private static bool _dumpAllSlow;
         private static bool _enabledFileLogs;
 
         // ---- METHODS (PRIVATE) --------------------------------------------------------------------------------------
@@ -39,7 +40,7 @@ namespace Syroot.CafiineServer
                         PrintHelp();
                     }
                     // Create a server and make it listen for incoming connections.
-                    Server server = new Server(_ipAddress, _port, _dataPath, _dumpPath, _logsPath, _dumpAll,
+                    Server server = new Server(_ipAddress, _port, _dataPath, _dumpPath, _logsPath, _dumpAll, _dumpAllSlow,
                             _enabledFileLogs);
                     await server.Run();
                 }
@@ -55,22 +56,24 @@ namespace Syroot.CafiineServer
             Console.WriteLine("Communicates with Wii U Cafiine clients and allows file dump and replacement.");
             Console.WriteLine();
             Console.WriteLine("CAFIINESERVER [/PORT=7332] [/IP=192.168.1.10] [/DATA=DataPath] [/DUMP=DumpPath]");
-            Console.WriteLine("              [/LOGS=LogsPath] [/DUMPALL] [/NOLOGS]");
+            Console.WriteLine("              [/LOGS=LogsPath] [/DUMPALL] [/DUMPALLSLOW] [/NOLOGS]");
             Console.WriteLine();
-            Console.WriteLine("        PORT     The port under which the server will listen for incoming client");
-            Console.WriteLine("                 connections. Defaults to 7332.");
-            Console.WriteLine("        IP       The IP address on which the server runs. Defaults to all IPv4");
-            Console.WriteLine("                 network interfaces of the computer.");
-            Console.WriteLine("        DATA     The path to the game data directory containing either game packs");
-            Console.WriteLine("                 or title ID folders. Defaults to 'data'.");
-            Console.WriteLine("        DUMP     The path to the directory in which file dumps will be stored.");
-            Console.WriteLine("                 Defaults to 'dump'.");
-            Console.WriteLine("        LOGS     The path to the directory in which logs will be stored. Defaults");
-            Console.WriteLine("                 to 'logs'.");
-            Console.WriteLine("        DUMPALL  When specified, the server dumps any file queried by the client.");
-            Console.WriteLine("                 Files will not be replaced even if available.");
-            Console.WriteLine("        NOLOGS   When specified, no file logs will be written (but console output");
-            Console.WriteLine("                 is still visible).");
+            Console.WriteLine("        PORT     	The port under which the server will listen for incoming client");
+            Console.WriteLine("                 	connections. Defaults to 7332.");
+            Console.WriteLine("        IP       	The IP address on which the server runs. Defaults to all IPv4");
+            Console.WriteLine("                 	network interfaces of the computer.");
+            Console.WriteLine("        DATA     	The path to the game data directory containing either game packs");
+            Console.WriteLine("                 	or title ID folders. Defaults to 'data'.");
+            Console.WriteLine("        DUMP     	The path to the directory in which file dumps will be stored.");
+            Console.WriteLine("                 	Defaults to 'dump'.");
+            Console.WriteLine("        LOGS     	The path to the directory in which logs will be stored. Defaults");
+            Console.WriteLine("                 	to 'logs'.");
+            Console.WriteLine("        DUMPALL  	When specified, the server dumps any file queried by the client.");
+            Console.WriteLine("                 	Files will not be replaced even if available.");
+            Console.WriteLine("        DUMPALLSLOW  When specified, the server dumps any file queried by the client in slow mode.");
+            Console.WriteLine("                 	Files will not be replaced even if available.");
+            Console.WriteLine("        NOLOGS   	When specified, no file logs will be written (but console output");
+            Console.WriteLine("                 	is still visible).");
         }
 
         private static void ParseParameters(Dictionary<string, string> arguments)
@@ -111,6 +114,9 @@ namespace Syroot.CafiineServer
 
             // Check if dump mode is set.
             _dumpAll = arguments.ContainsKey("DUMPALL");
+
+            // Check if slow dump mode is set.
+            _dumpAllSlow = arguments.ContainsKey("DUMPALLSLOW");
 
             // Check if no logging should be done.
             _enabledFileLogs = !arguments.ContainsKey("NOLOGS");
