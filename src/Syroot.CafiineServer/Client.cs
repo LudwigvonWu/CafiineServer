@@ -18,7 +18,7 @@ namespace Syroot.CafiineServer
     internal class Client
     {
         // ---- MEMBERS ------------------------------------------------------------------------------------------------
-        
+
         private Server _server;
         private TcpClient _tcpClient;
         private string _logPrefix;
@@ -81,11 +81,23 @@ namespace Syroot.CafiineServer
                         $"Client connected (endpoint={_tcpClient.Client.RemoteEndPoint}, title={_titleID})");
 
                     // Tell the client whether we want to handle the title or not.
-                    if (_server.DumpAll || _server.Storage.GetDirectory(_titleID) != null)
+                    if (_server.DumpAll || _server.DumpAllSlow || _server.Storage.GetDirectory(_titleID) != null)
                     {
                         // Send back that we are interested in this title.  
-                        _server.Log.Write(ConsoleColor.White, _logPrefix,
-                            $"> {(_server.DumpAll ? "Enabling dump" : "Data found")} for title {_titleID}.");
+                        string message;
+                        if (_server.DumpAll)
+                        {
+                            message = "Enabling dump";
+                        }
+                        else if (_server.DumpAllSlow)
+                        {
+                            message = "Enabling slow dump";
+                        }
+                        else
+                        {
+                            message = "Data found";
+                        }
+                        _server.Log.Write(ConsoleColor.White, _logPrefix, $"{message} for title {_titleID}.");
                         _writer.Write((byte)ClientCommand.Special);
                     }
                     else
@@ -156,11 +168,12 @@ namespace Syroot.CafiineServer
             // Check what should be done with the queried path.
             bool requestSlow = false;
             StorageFile file;
-            if ((_server.DumpAll
+            if ((_server.DumpAll || _server.DumpAllSlow
                 || File.Exists(fullPath + "-request") || (requestSlow = File.Exists(fullPath + "-request_slow")))
                 && !File.Exists(_server.GetDumpPath(_titleID, path)))
             {
-                // The server is in dump mode or a single dump has been requested, and the dump does not exist yet.
+                //The server is in (slow) dump mode or a single dump has been requested, and the dump does not exist yet.
+                requestSlow = _server.DumpAllSlow ? true : requestSlow;
                 _server.Log.Write(ConsoleColor.Magenta, _logPrefix,
                     $"> Requesting dump of '{path}' (slow={requestSlow})");
                 _writer.Write(requestSlow ? (byte)ClientCommand.RequestSlow : (byte)ClientCommand.Request);
