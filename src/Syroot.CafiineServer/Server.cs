@@ -151,7 +151,7 @@ namespace Syroot.CafiineServer
             {
                 message = " in dump mode";
             }
-            else if (_server.DumpAllSlow)
+            else if (DumpAllSlow)
             {
                 message = " in slow dump mode";
             }
