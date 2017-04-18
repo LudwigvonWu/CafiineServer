@@ -10,13 +10,3 @@ It offers the following new functionality:
 - Running on Linux and macOS by targeting .NET 4.5 / Mono and .NET Standard 1.6.
 
 The features are described in detail on the [wiki](https://github.com/Syroot/CafiineServer/wiki).
-
-License
-=======
-
-<a href="http://www.wtfpl.net/"><img src="http://www.wtfpl.net/wp-content/uploads/2012/12/wtfpl.svg" height="20" alt="WTFPL" /></a> WTFPL
-
-    Copyright © 2017 syroot.com <admin@syroot.com>
-    This work is free. You can redistribute it and/or modify it under the
-    terms of the Do What The Fuck You Want To Public License, Version 2,
-    as published by Sam Hocevar. See the COPYING file for more details.
