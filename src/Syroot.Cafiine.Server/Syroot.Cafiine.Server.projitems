@@ -1,0 +1,31 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <MSBuildAllProjects>$(MSBuildAllProjects);$(MSBuildThisFileFullPath)</MSBuildAllProjects>
+    <HasSharedItems>true</HasSharedItems>
+    <SharedGUID>9e858148-7acb-4357-a271-1c1a63e0392d</SharedGUID>
+  </PropertyGroup>
+  <PropertyGroup Label="Configuration">
+    <Import_RootNamespace>Syroot.Cafiine.Server</Import_RootNamespace>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="$(MSBuildThisFileDirectory)Client.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)FileSystem.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)IO\BinaryDataWriterExtensions.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)LogManager.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Pack\GamePack.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Pack\GamePackDirectory.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Pack\GamePackFile.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Pack\ICryptoTransformExtensions.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Pack\SafeCryptoStream.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Server.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Storage\PackStorageDirectory.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Storage\PackStorageFile.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Storage\RawStorageDirectory.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Storage\RawStorageFile.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Storage\RootStorageDirectory.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Storage\StorageDirectory.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Storage\StorageFile.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Storage\StorageSystem.cs" />
+  </ItemGroup>
+</Project>
